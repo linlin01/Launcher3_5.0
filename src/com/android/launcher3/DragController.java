@@ -504,11 +504,22 @@ public class DragController {
         checkTouchMove(dropTarget);
     }
 
+    /**
+     * 这个方法是检查当前拖动的icon准备落在哪个view上，这个view就是dropTarget的子类
+     * 这个方法会被 handleMoveEvent(int x, int y)调用，而handleMoveEvent(int x, int y)会被
+     * onTouchEvent(MotionEvent ev) 这个方法调用，有手指在屏幕上按着就是一直触发onTouchEvent(MotionEvent ev)。
+     *
+     * 所以这个checkTouchMove方法会被一直的调用，实时的传入当前拖拽的icon所在的可以落下的dropTarget上
+     * 这个方法最后有一句mLastDropTarget = dropTarget;就是把参数dropTarget临时保存在mLastDropTarget上
+     * 方便下次再调用的时候新传入的dropTarget和mLastDropTarget对比是否发生了变化然后做进一步的处理
+     *
+     *
+     * @param dropTarget
+     */
     private void checkTouchMove(DropTarget dropTarget) {
         if (dropTarget != null) {
             if (mLastDropTarget != dropTarget) {
                 if (mLastDropTarget != null) {
-                    Log.i("zhao11closefolder", "closeFolder111checkTouchMove");
                     mLastDropTarget.onDragExit(mDragObject);
                 }
                 dropTarget.onDragEnter(mDragObject);
@@ -516,11 +527,10 @@ public class DragController {
             dropTarget.onDragOver(mDragObject);
         } else {
             if (mLastDropTarget != null) {
-                //
+                //这里一般是不会走的
                 mLastDropTarget.onDragExit(mDragObject);
             }
         }
-        Log.i("zhao11closefolder","closeFolder222222222"+dropTarget);
         mLastDropTarget = dropTarget;
     }
 
