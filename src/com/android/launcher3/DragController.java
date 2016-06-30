@@ -697,6 +697,23 @@ public class DragController {
         mDragObject.dragSource.onDropCompleted((View) dropTarget, mDragObject, false, accepted);
     }
 
+    /**
+     * 这个方法是寻找拖拽的icon目前所处的可以落下的那一层view（就是所谓的droptarget -- 可落下的目标）
+     * 原理是droptarget是好几层，一层一层的往下找的，每一层有一个矩形的区域，
+     * 根据判断拖动icon当前的位置是否在这个矩形区域来判断在不在这个droptarget。
+     *
+     * 我们可以看到这里边有个ArrayList<DropTarget> dropTargets 列表，里边存的就是所有的DropTarget
+     * 通过循环遍历这个列表来找拖拽的icon是否在当前这个droptarget上
+     * 我们可以看到for循环体里有这么一句代码 target.getHitRectRelativeToDragLayer(r);
+     * 这个就是DropTarget的子类来调用各自重写的getHitRectRelativeToDragLayer（）方法来初始化矩形变量 r
+     *
+     * 每个droptarget子类里复写的getHitRectRelativeToDragLayer（）都是根据自己view的实际大小来然后把值赋给r
+     *
+     * @param x
+     * @param y
+     * @param dropCoordinates
+     * @return
+     */
     private DropTarget findDropTarget(int x, int y, int[] dropCoordinates) {
         final Rect r = mRectTemp;
 
