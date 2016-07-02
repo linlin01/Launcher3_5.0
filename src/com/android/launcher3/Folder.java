@@ -189,7 +189,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
         LauncherAppState app = LauncherAppState.getInstance();
         DeviceProfile grid = app.getDynamicGrid().getDeviceProfile();
-
+Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.folderCellHeightPx);
         mContent.setCellDimensions(grid.folderCellWidthPx, grid.folderCellHeightPx);
         mContent.setGridSize(0, 0);
         mContent.getShortcutsAndWidgets().setMotionEventSplittingEnabled(false);
@@ -544,9 +544,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             public void onAnimationStart(Animator animation) {
                 sendCustomAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
                         String.format(getContext().getString(R.string.folder_opened),
-                        mContent.getCountX(), mContent.getCountY()));
+                                mContent.getCountX(), mContent.getCountY()));
                 mState = STATE_ANIMATING;
             }
+
             @Override
             public void onAnimationEnd(Animator animation) {
                 mState = STATE_OPEN;
@@ -952,7 +953,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             View v = list.get(i);
             ItemInfo info = (ItemInfo) v.getTag();
             LauncherModel.addItemToDatabase(mLauncher, info, mInfo.id, 0,
-                        info.cellX, info.cellY, false);
+                    info.cellX, info.cellY, false);
         }
     }
 
@@ -971,7 +972,10 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
         int countX = mContent.getCountX();
         int countY = mContent.getCountY();
-        boolean done = false;
+
+
+//        Log.i("zhao11size","first setupContentDimensions:"+countX+","+countY+",view size:"+list.size()+","+count);
+        /*boolean done = false;
 
         while (!done) {
             int oldCountX = countX;
@@ -991,6 +995,16 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
             }
             done = countX == oldCountX && countY == oldCountY;
         }
+*/
+        /***
+         * 这个countX和countY就是计算文件夹的行数和列数，修改这个就可以达到文件夹打开时候是多大
+         *
+         * 比如文件夹里有三个item时候那么文件夹大小算出来就是两行两列，，但是我们要固定大小的时候就
+         * 固定为4行4列
+         */
+        countX = 4;
+        countY = 4;
+        //Log.i("zhao11size","setupContentDimensions:"+countX+","+countY);
         mContent.setGridSize(countX, countY);
         arrangeChildren(list);
     }
