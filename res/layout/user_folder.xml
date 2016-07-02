@@ -20,11 +20,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@drawable/folder_bg"
     android:gravity="center_horizontal">
     <!--android:background="@drawable/quantum_panel">-->
 
     <com.android.launcher3.FolderEditText
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="100dp"
         android:id="@+id/folder_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,7 +46,7 @@
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/folder_scroll_bg">
+        android:background="@drawable/folder_scroll_bg1">
       <com.android.launcher3.CellLayout
           android:id="@+id/folder_content"
           android:layout_width="wrap_content"

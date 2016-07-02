@@ -740,13 +740,15 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
     public void onDragOver(DragObject d) {
         final DragView dragView = d.dragView;
-        final int scrollOffset = mScrollView.getScrollY()-580;//修改这里就可以达到拖拽时可以挤占要挤占的位置
+        //final int scrollOffset = mScrollView.getScrollY()-580;//修改这里就可以达到拖拽时可以挤占要挤占的位置
+        final int scrollOffset = -mScrollView.getTop();//修改这里就可以达到拖拽时可以挤占要挤占的位置
 
-        Log.e("zhao11folder","scrollOffset:"+scrollOffset+","+mScrollView.getPaddingTop());
+        //Log.e("zhao11folder","scrollOffset:"+scrollOffset+","+mScrollView.getTop());
         final float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, dragView, null);
         r[0] -= getPaddingLeft();
         r[1] -= getPaddingTop();
 
+        r[0] -= mScrollView.getLeft();//添加这句话可以使得挤占icon变得灵活
         final long downTime = SystemClock.uptimeMillis();
         final MotionEvent translatedEv = MotionEvent.obtain(
                 downTime, downTime, MotionEvent.ACTION_MOVE, d.x, d.y, 0);
@@ -1054,7 +1056,7 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
                 (1.0f * folderPivotY / height));
         /**
          * 这个是改panding参数的地方，修改这里就可以以达到让
-         *
+         *所以我们width  height就可以了
 
          lp.width = 1080;
          lp.height = 1776;
@@ -1416,8 +1418,11 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
     @Override
     public void getHitRectRelativeToDragLayer(Rect outRect) {
         getHitRect(outRect);
-        outRect.set(80,560,1010,1570);//改这里就是判断是否当前拖动的icon在不在folder上
-        /**
+        outRect.set(mScrollView.getLeft(), mScrollView.getTop(),
+                mScrollView.getRight(), mScrollView.getBottom());//改这里就是判断是否当前拖动的icon在不在folder上
+        /**Log.i("zhao111","getHitRectRelativeToDragLayer:"+mScrollView.getLeft()+","+mScrollView.getTop()
+                +","+mScrollView.getRight()+","+mScrollView.getBottom());
+         *
          * 这个是一个矩形区域，这个矩形区会判断当前拖拽的icon的坐标在不在这个区域里来判断是否在
          * 这个droptarget上
          */

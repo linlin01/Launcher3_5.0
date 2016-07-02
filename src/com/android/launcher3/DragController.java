@@ -483,9 +483,9 @@ public class DragController {
         // Drop on someone?
         final int[] coordinates = mCoordinatesTemp;
         DropTarget dropTarget = findDropTarget(x, y, coordinates);
+        Log.i("zhao33drag","mDragObject,x:"+mDragObject.x+",y:"+mDragObject.y+",coordinates,x:"+coordinates[0]+",y:"+coordinates[1]);
         mDragObject.x = coordinates[0];
         mDragObject.y = coordinates[1];
-        Log.i("zhao11closefolder","closeFolder111handleMoveEvent");
         checkTouchMove(dropTarget);
 
         // Check if we are hovering over the scroll areas
