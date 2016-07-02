@@ -344,7 +344,17 @@ public class FolderIcon extends FrameLayout implements FolderListener {
         mFolderRingAnimator.setCellLayout(layout);
         mFolderRingAnimator.animateToAcceptState();
         layout.showFolderAccept(mFolderRingAnimator);
-        mOpenAlarm.setOnAlarmListener(mOnOpenListener);
+        /**
+         * 注释掉这句话时拖动icon到文件夹上时文件夹就不会打开了
+         *
+         * 拖动icon到文件夹上后文件夹打开后这个时候如果icon不在scrollview的时候松手发现icon没有添加到
+         * 文件夹里而是继续落在workspace上，因为这个时候launcher检测icon还没有在folder里
+         *
+         * 还有一个问题就是直接从allapp里拖出来后直接拖到folder里，
+         * folder打开了会发现workspace隐藏了后一松手会发现workspace又显示出来了，但是folder还没有关闭
+         *
+         */
+        //mOpenAlarm.setOnAlarmListener(mOnOpenListener);
         if (SPRING_LOADING_ENABLED &&
                 ((dragInfo instanceof AppInfo) || (dragInfo instanceof ShortcutInfo))) {
             // TODO: we currently don't support spring-loading for PendingAddShortcutInfos even
