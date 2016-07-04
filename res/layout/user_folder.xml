@@ -46,6 +46,10 @@
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
         android:background="@drawable/folder_scroll_bg">
       <com.android.launcher3.CellLayout
           android:id="@+id/folder_content"

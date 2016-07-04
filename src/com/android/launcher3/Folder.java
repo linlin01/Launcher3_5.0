@@ -745,7 +745,7 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
     public void onDragOver(DragObject d) {
         final DragView dragView = d.dragView;
         //final int scrollOffset = mScrollView.getScrollY()-580;//修改这里就可以达到拖拽时可以挤占要挤占的位置
-        final int scrollOffset = -mScrollView.getTop();//修改这里就可以达到拖拽时可以挤占要挤占的位置
+        final int scrollOffset =mScrollView.getScrollY() - mScrollView.getTop() - 50;//修改这里就可以达到拖拽时可以挤占要挤占的位置
 
         //Log.e("zhao11folder","scrollOffset:"+scrollOffset+","+mScrollView.getTop());
         final float[] r = getDragViewVisualCenter(d.x, d.y, d.xOffset, d.yOffset, dragView, null);
@@ -1137,9 +1137,9 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
 //        Log.i("zhao11folder","mwidth:"+mwidth);
 //        Log.i("zhao11folder","mheight:"+mheight);
         int contentAreaWidthSpec = MeasureSpec.makeMeasureSpec(getContentAreaWidth(),
-                MeasureSpec.EXACTLY);
+                MeasureSpec.EXACTLY) +50;
         int contentAreaHeightSpec = MeasureSpec.makeMeasureSpec(getContentAreaHeight(),
-                MeasureSpec.EXACTLY);
+                MeasureSpec.EXACTLY) +50;
 
         if (LauncherAppState.isDisableAllApps()) {
             // Don't cap the height of the content to allow scrolling.

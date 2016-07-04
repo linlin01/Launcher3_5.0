@@ -3036,10 +3036,8 @@ out:            for (int i = x; i < x + spanX - 1 && x < xCount; i++) {
     }
 
     public int getDesiredWidth() {
-       // return getPaddingLeft() + getPaddingRight() + (mCountX * mCellWidth) +
-         //       (Math.max((mCountX - 1), 0) * mWidthGap);
-        return getPaddingLeft() + getPaddingRight() + (4 * mCellWidth) +
-                (Math.max((4 - 1), 0) * mWidthGap);
+        return getPaddingLeft() + getPaddingRight() + (mCountX * mCellWidth) +
+                (Math.max((mCountX - 1), 0) * mWidthGap);
     }
 
     public int getDesiredHeight()  {
