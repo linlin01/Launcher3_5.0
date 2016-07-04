@@ -312,6 +312,8 @@ public class Launcher extends Activity
     private boolean mHasFocus = false;
     private boolean mAttached = false;
 
+    private boolean isFolderClose = true;//add by zhaopenglin for folder
+
     private static LocaleConfiguration sLocaleConfiguration = null;
 
     private static HashMap<Long, FolderInfo> sFolders = new HashMap<Long, FolderInfo>();
@@ -2913,11 +2915,15 @@ Log.w("zhao11folder","v:"+v);
         hideWorkspaceSearchAndHotseat();
         folder.animateOpen();
         growAndFadeOutFolderIcon(folderIcon);
-
+        isFolderClose = false;
         // Notify the accessibility manager that this folder "window" has appeared and occluded
         // the workspace items
         folder.sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
         getDragLayer().sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+    }
+
+    public boolean getIsFolderClose(){
+        return isFolderClose;
     }
 
     public void closeFolder() {
@@ -2934,15 +2940,24 @@ Log.w("zhao11folder","v:"+v);
     void closeFolder(Folder folder) {
         Log.i("zhao11closefolder","closeFolder11111111111111");
         folder.getInfo().opened = false;
-
+        isFolderClose = true;
         ViewGroup parent = (ViewGroup) folder.getParent().getParent();
         if (parent != null) {
             FolderIcon fi = (FolderIcon) mWorkspace.getViewForTag(folder.mInfo);
             shrinkAndFadeInFolderIcon(fi);
         }
         folder.animateClosed();
-        showWorkspaceSearchAndHotseat();
 
+        /**
+         * 下边这个if else 是当icon从文件夹里拖出来的时候文件夹关闭，workspace显示，但是searchbar不能显示
+         * 只显示“删除”按钮。这个和  SearchDropTargetBar里的 public void onDragEnd() 方法结合控制
+         * onDragEnd()这个是观察者里的方法，他们观察是否开始拖拽。
+         */
+
+        if (mDragController.isDragging())
+            showWorkspaceAndHotseat();
+        else
+            showWorkspaceSearchAndHotseat();
         // Notify the accessibility manager that this folder "window" has disappeard and no
         // longer occludeds the workspace items
         getDragLayer().sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
@@ -4888,9 +4903,10 @@ Log.w("zhao11folder","v:"+v);
     }
 
     void showWorkspaceSearchAndHotseat() {
-        if (mWorkspace != null) mWorkspace.setAlpha(1f);
-        if (mHotseat != null) mHotseat.setAlpha(1f);
-        if (mPageIndicators != null) mPageIndicators.setAlpha(1f);
+//        if (mWorkspace != null) mWorkspace.setAlpha(1f);
+//        if (mHotseat != null) mHotseat.setAlpha(1f);
+//        if (mPageIndicators != null) mPageIndicators.setAlpha(1f);
+        showWorkspaceAndHotseat();
         if (mSearchDropTargetBar != null) mSearchDropTargetBar.showSearchBar(false);
     }
 
@@ -4899,6 +4915,12 @@ Log.w("zhao11folder","v:"+v);
         if (mHotseat != null) mHotseat.setAlpha(0f);
         if (mPageIndicators != null) mPageIndicators.setAlpha(0f);
         if (mSearchDropTargetBar != null) mSearchDropTargetBar.hideSearchBar(false);
+    }
+
+    void showWorkspaceAndHotseat() {
+        if (mWorkspace != null) mWorkspace.setAlpha(1f);
+        if (mHotseat != null) mHotseat.setAlpha(1f);
+        if (mPageIndicators != null) mPageIndicators.setAlpha(1f);
     }
 
     public ItemInfo createAppDragInfo(Intent appLaunchIntent) {

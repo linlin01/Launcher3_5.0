@@ -23,6 +23,7 @@ import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.FrameLayout;
@@ -52,6 +53,8 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
     private Drawable mPreviousBackground;
     private boolean mEnableDropDownDropTargets;
 
+    private Launcher mLauncher;//add by zhaopenglin for folder
+
     public SearchDropTargetBar(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
@@ -61,6 +64,7 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
     }
 
     public void setup(Launcher launcher, DragController dragController) {
+        mLauncher = launcher;//add by zhaopenglin for folder
         dragController.addDragListener(this);
         dragController.addDragListener(mInfoDropTarget);
         dragController.addDragListener(mDeleteDropTarget);
@@ -211,6 +215,12 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
         } else {
             mDeferOnDragEnd = false;
         }
+
+        /**
+         *添加下边这句话是为了从文件夹里拖出图标时上边的searchbar还不显示，松手后就让它显示出来
+         */
+        Log.i("zhao1122", "mIsSearchBarHidden" + mIsSearchBarHidden);
+        if(mIsSearchBarHidden && mLauncher.getIsFolderClose()) showSearchBar(false);
     }
 
     public void onSearchPackagesChanged(boolean searchVisible, boolean voiceVisible) {
