@@ -500,7 +500,10 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
 
             int rx = (int) Math.max(Math.max(width - getPivotX(), 0), getPivotX());
             int ry = (int) Math.max(Math.max(height - getPivotY(), 0), getPivotY());
-            float radius = (float) Math.sqrt(rx * rx + ry * ry);
+            /**
+             * 打开文件夹的那个圆形扩散动画的半径，修改可以让打开的动画完整播放
+             */
+            float radius = (float) Math.sqrt(rx * rx + ry * ry) * 2;
             AnimatorSet anim = LauncherAnimUtils.createAnimatorSet();
             Animator reveal = LauncherAnimUtils.createCircularReveal(this, (int) getPivotX(),
                     (int) getPivotY(), 0, radius);
