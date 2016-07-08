@@ -52,6 +52,11 @@
             android:id="@+id/overview_panel"
             android:visibility="gone" />
 
+<!--add by liuxianbang for Ani 20150203 (start)-->
+        <include layout="@layout/screen_effects"
+            android:id="@+id/screen_effects"
+            android:visibility="gone" />
+<!--add by liuxianbang for Ani 20150203 (end)-->            
         <!-- Keep these behind the workspace so that they are not visible when
              we go into AllApps -->
         <include

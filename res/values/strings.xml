@@ -306,4 +306,13 @@ s -->
     <string name="abandoned_promise_explanation">The app for this icon isn\'t installed.
         You can remove it, or search for the app and install it manually.
     </string>
+<!--add by liuxianbang for Ani 20150203 (start)-->
+    <string name="screen_effect_title" >EFFECT</string>
+    <string name="screen_effect_default" >DEFAULT</string>
+    <string name="screen_effect_fade" >FADE</string>
+    <string name="screen_effect_overlay" >OVERLAY</string>
+    <string name="screen_effect_perturbed" >PERTURBED</string>
+    <string name="screen_effect_rotate" >ROTATE</string>
+    <string name="screen_effect_cube" >CUBE</string>
+<!--add by liuxianbang for Ani 20150203 (end)-->
 </resources>

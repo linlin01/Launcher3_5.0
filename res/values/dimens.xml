@@ -96,4 +96,13 @@
 <!-- Sizes for managed profile badges -->
     <dimen name="profile_badge_size">24dp</dimen>
     <dimen name="profile_badge_margin">4dp</dimen>
+<!--add by liuxianbang for Ani 20150203 (start)-->
+    <dimen name="overpanel_button_space">48dp</dimen>
+    <dimen name="screen_effect_space">40dp</dimen>
+    <dimen name="overpanel_button_pad">10dp</dimen>
+    <dimen name="overpanel_dimen">74dp</dimen>
+    <dimen name="overpanel_button_space_left">5dp</dimen>
+    <dimen name="overpanel_button_space_bottom">8dp</dimen>
+    <dimen name="overpanel_button_pad_bottom">8dp</dimen>
+<!--add by liuxianbang for Ani 20150203 (end)-->
 </resources>

@@ -79,6 +79,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+//add by liuxianbang for Ani 20150203 (start)
+import android.graphics.Camera;
+import android.graphics.Color;
+//add by liuxianbang for Ani 20150203 (end)
 
 /**
  * The workspace is a wide area with a wallpaper and a finite number of pages.
@@ -337,6 +341,10 @@ public class Workspace extends SmoothPagedView
         mSpringLoadedShrinkFactor =
             res.getInteger(R.integer.config_workspaceSpringLoadShrinkPercentage) / 100.0f;
         mOverviewModeShrinkFactor = grid.getOverviewModeScale();
+//add by liuxianbang for Ani 20150203 (start)
+        if(mLauncher.hasScreenEffects()){
+        mOverviewModeShrinkFactor = OVERVIEW_SCALE;}
+//add by liuxianbang for Ani 20150203 (end)
         mCameraDistance = res.getInteger(R.integer.config_cameraDistance);
         mOriginalDefaultPage = mDefaultPage = a.getInt(R.styleable.Workspace_defaultScreen, 1);
         a.recycle();
@@ -1249,6 +1257,22 @@ public class Workspace extends SmoothPagedView
             stripEmptyScreens();
             mStripScreensOnPageStopMoving = false;
         }
+//add by liuxianbang for Ani 20150203 (start)
+        if(mPreviewAniNext){
+//           if (LauncherLog.DEBUG_ANI) {
+//                LauncherLog.d(LauncherLog.TAG_ANI,"onPageEndMoving,mPreviewAniNext!");
+//            }
+           mPreviewAniNext=false;
+           mPreviewAniLast=true;
+           snapToPage(mCurrentPage-1,1000);
+        }else if(mPreviewAniLast){
+//            if (LauncherLog.DEBUG_ANI) {
+//                LauncherLog.d(LauncherLog.TAG_ANI,"onPageEndMoving,mPreviewAniLast!");
+//            }
+            mPreviewAniLast = false;
+            mPreAniStop = true;
+        }
+//add by liuxianbang for Ani 20150203 (end)
     }
 
     @Override
@@ -2112,6 +2136,11 @@ public class Workspace extends SmoothPagedView
     }
 
     public void exitOverviewMode(int snapPage, boolean animated) {
+//add by liuxianbang for Ani 20150203 (start)
+        stopPreviewAni();
+        mLauncher.getScreenEffects().setVisibility(View.GONE);
+        setStateEffects(false);
+//add by liuxianbang for Ani 20150203 (end)
         enableOverviewMode(false, snapPage, animated);
     }
 
@@ -5156,4 +5185,153 @@ public class Workspace extends SmoothPagedView
             }
         }
     }
+//add by liuxianbang for Ani 20150203 (start)
+    private boolean mStateEffects = false;
+    private boolean mPreviewAniNext = false;
+    private boolean mPreviewAniLast = false;
+    private boolean mPreAniStop = true;
+    private int mReallyCurPage = -1;
+    private final Matrix mMatrix = new Matrix();
+    private final Camera mCamera = new Camera();
+    public void startPreviewAni(){
+        mPreviewAniNext = true;
+        mPreAniStop = false;
+        mReallyCurPage = mCurrentPage;
+        if(mCurrentPage==getChildCount()-1){
+           //insertNewWorkspaceScreen(EXTRA_EMPTY_SCREEN_ID);
+        }
+        snapToPage(mCurrentPage+1,1000);
+    }
+    public void setStateEffects(boolean state){
+        mStateEffects = state;
+    }
+    public boolean isStateEffects(){
+        return mStateEffects;
+    }
+    public void stopPreviewAni(){
+        mPreviewAniNext = false;
+        mPreviewAniLast = false;
+        mPreAniStop = true;
+        if(mReallyCurPage!=-1){
+        setCurrentPage(mReallyCurPage);
+        mReallyCurPage=-1;}
+    }
+    public boolean isPreAniStop(){
+        return mPreAniStop;
+    }
+    
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        // Add by sunjie for Home Screen Edit Feature @{
+//        if (mLauncher.isPreviewStates()) {
+//            return true;
+//        }
+        // }@
+        if(mPreviewAniNext||mPreviewAniLast){
+//           if (LauncherLog.DEBUG_ANI) {
+//                LauncherLog.d(LauncherLog.TAG_ANI,"dispatchTouchEvent,and state is:"+mPreviewAniNext+","+mPreviewAniLast);
+//            }
+           return false;
+        }
+        return super.dispatchTouchEvent(event);
+    }
+
+    @Override
+    protected void makeSlideEffect(Canvas canvas, View v, int index){
+        if((mState != State.NORMAL || mDragController.isDragging())){
+            if(v.getAlpha() != 1.0f){
+                v.setAlpha(1.0f);
+            }
+        }
+        int childOffset = getChildOffset(index);
+        float deltaX = getScrollX()-childOffset;
+        float absDeltaX = Math.abs(deltaX);
+        if(absDeltaX<=15){absDeltaX=deltaX=0;}
+        float pageWidth = v.getWidth();
+        if(absDeltaX<=0 || absDeltaX >= pageWidth){
+            if(v.getAlpha() != 1.0f){
+                v.setAlpha(1.0f);
+            }
+//            if (LauncherLog.DEBUG_ANI) {
+//                LauncherLog.d(LauncherLog.TAG_ANI,"makeSlideEffect return,absDeltaX is:"+absDeltaX+",and pageWidth is:"+pageWidth);
+//            }
+            return;
+        }
+        float pageHeight = v.getHeight();
+        float aspectRatio = pageHeight/pageWidth;
+        float horizonRate = 1-absDeltaX/pageWidth;
+        boolean needResetAlpha = true;//
+        float alpha = SLIDE_EFFECT_ALPHA_LIMIT+horizonRate*(1-SLIDE_EFFECT_ALPHA_LIMIT);
+        float scale = SLIDE_EFFECT_SCALE_LIMIT+horizonRate*(1-SLIDE_EFFECT_SCALE_LIMIT);
+        switch(mSlideEffect){
+        case UI_SLIDE_EFFECT_ROTATION:{
+            canvas.save();
+            float rotateCenterX = v.getLeft()+pageWidth/2;
+            float angle = -90*deltaX/pageWidth;//Negative means outboard of cube; Positive will be inside
+            float postScale = SLIDE_EFFECT_ROTATE_LIMIT 
+                    + Math.abs(2*absDeltaX/pageWidth-1)*(1-SLIDE_EFFECT_ROTATE_LIMIT); 
+            Matrix matrix = new Matrix();
+            mCamera.save();
+            mCamera.rotateY(angle);
+            mCamera.getMatrix(matrix);
+            mCamera.restore();
+            matrix.preTranslate(-rotateCenterX, -getHeight()/2);
+            matrix.preScale(postScale, postScale, rotateCenterX, getHeight()/2);
+            matrix.postTranslate(rotateCenterX+deltaX, getHeight()/2);
+            canvas.concat(matrix);
+            v.setAlpha(alpha);
+            needResetAlpha = false;
+        }
+            break;
+        case UI_SLIDE_EFFECT_CUBE:{
+            float rotateCenterX = calCubeRotateCenterX(pageWidth, v.getLeft()+pageWidth/2, deltaX);
+            float angle = -90f*deltaX/pageWidth;//Negative means outboard of cube; Positive will be inside
+            Matrix matrix = new Matrix();
+            mCamera.save();
+            mCamera.rotateY(angle);
+            mCamera.getMatrix(matrix);
+            mCamera.restore();
+            matrix.preTranslate(-rotateCenterX, -getHeight()/2);
+            matrix.postTranslate(rotateCenterX, getHeight()/2);
+            canvas.concat(matrix);
+        }
+            break;
+        case UI_SLIDE_EFFECT_FADE_INOUT:
+            v.setAlpha(alpha);
+            needResetAlpha = false;
+            break;
+        case UI_SLIDE_EFFECT_LAYER:
+            if(deltaX>0){
+                canvas.translate(deltaX,0);
+                canvas.scale(scale, scale,v.getLeft()+pageWidth/2, getHeight()/2);
+                v.setAlpha(alpha);
+                needResetAlpha = false;
+            }
+            break;
+        case UI_SLIDE_EFFECT_JUMP:
+            //Both left and right screen translate on positive Y axis
+            canvas.translate(0, absDeltaX*aspectRatio);
+            break;
+        case UI_SLIDE_EFFECT_DEFAULT:
+        default:
+            break;
+        }
+        if(needResetAlpha && v.getAlpha() != 1.0f){
+            v.setAlpha(1.0f);
+        }
+    }
+
+    private float calCubeRotateCenterX(float width, float centerx, float deltaX){
+        float halfScreenX = width/2.0f;
+        float viewCenterX = centerx;
+        float leftRight = deltaX/Math.abs(deltaX);
+        float rotateCenterX = viewCenterX+leftRight*halfScreenX;
+        return rotateCenterX;
+    }
+    
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        drawAnimations(canvas);
+    }
+//add by liuxianbang for Ani 20150203 (end)
 }

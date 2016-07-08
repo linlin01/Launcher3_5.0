@@ -2885,4 +2885,104 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     public boolean onHoverEvent(android.view.MotionEvent event) {
         return true;
     }
+//add by liuxianbang for Ani 20150203 (start)
+    public final static int UI_SLIDE_EFFECT_DEFAULT = 0;
+    public final static int UI_SLIDE_EFFECT_FADE_INOUT = 1;
+    public final static int UI_SLIDE_EFFECT_LAYER = 2;
+    public final static int UI_SLIDE_EFFECT_JUMP = 3;
+    public final static int UI_SLIDE_EFFECT_ROTATION = 4;
+    public final static int UI_SLIDE_EFFECT_CUBE = 5;
+    public final float SLIDE_EFFECT_ALPHA_LIMIT = 0.1f;
+    public final float SLIDE_EFFECT_SCALE_LIMIT = 0.5f;
+    public final float SLIDE_EFFECT_ROTATE_LIMIT = 0.75f;
+    public final static float OVERVIEW_SCALE = 0.95f;
+    public final static float OVERVIEW_ALPHA = 0.5f;
+    public static int mSlideEffect = UI_SLIDE_EFFECT_DEFAULT;
+    
+    protected void makeSlideEffect(Canvas canvas, View v, int index){
+    	//Do nothing
+    }
+    
+    public void setSlideEffect(int effect){
+        mSlideEffect = effect;
+        restoreAlpha();
+//        if (LauncherLog.DEBUG_ANI){
+//            LauncherLog.d(LauncherLog.TAG_ANI,"setSlideEffect,and effect is:"+effect);
+//        }
+    }
+    
+    public int getSlideEffect(){
+         return mSlideEffect;
+    }
+    
+    //for alpha resotre from ani
+    private void restoreAlpha(){
+        final int pageCount = getChildCount();
+        for (int i = pageCount - 1; i >= 0; i--) {
+            final View v = getPageAt(i);
+            if(v.getAlpha() != 1.0f){
+                v.setAlpha(1.0f);
+            }
+                }
+    }
+    
+    protected void drawAnimations(Canvas canvas){
+    	// Find out which screens are visible; as an optimization we only call draw on them
+        final int pageCount = getChildCount();
+        if (pageCount > 0) {
+            int halfScreenSize = getViewportWidth() / 2;
+            // mOverScrollX is equal to getScrollX() when we're within the normal scroll range.
+            // Otherwise it is equal to the scaled overscroll position.
+            int screenCenter = mOverScrollX + halfScreenSize;
+//	        Trace.traceBegin(Trace.TRACE_TAG_VIEW, "PagedView.dispatchDraw: mScrollX = " + getScrollX());
+//	        Trace.traceEnd(Trace.TRACE_TAG_VIEW);
+			
+//			if (LauncherLog.DEBUG_DRAW) {
+//				LauncherLog.d(TAG, "dispatchDraw: mScrollX = " + getScrollX() + ", screenCenter = " + screenCenter
+//						+ ", mOverScrollX = " + mOverScrollX + ", mUnboundedScrollX = " + mUnboundedScrollX + ", mMaxScrollX = "
+//						+ mMaxScrollX + ", mLastScreenCenter = " + mLastScreenCenter + ", mLeft = " + getLeft() + ", mRight = "
+//						+ getRight() + ",mForceScreenScrolled = " + mForceScreenScrolled + ",getWidth() = " + getWidth()
+//						+ ", pageCount = " + getChildCount() + ", this = " + this);
+//			}
+
+            if (screenCenter != mLastScreenCenter || mForceScreenScrolled) {
+                // set mForceScreenScrolled before calling screenScrolled so that screenScrolled can
+                // set it for the next frame
+                mForceScreenScrolled = false;
+                screenScrolled(screenCenter);
+                mLastScreenCenter = screenCenter;
+            }
+
+            getVisiblePages(mTempVisiblePagesRange);
+            final int leftScreen = mTempVisiblePagesRange[0];
+            final int rightScreen = mTempVisiblePagesRange[1];
+            if (leftScreen != -1 && rightScreen != -1) {
+                final long drawingTime = getDrawingTime();
+                // Clip to the bounds
+                canvas.save();
+                canvas.clipRect(getScrollX(), getScrollY(), getScrollX() + getRight() - getLeft(),
+                        getScrollY() + getBottom() - getTop());
+
+                // Draw all the children, leaving the drag view for last
+                for (int i = pageCount - 1; i >= 0; i--) {
+                    final View v = getPageAt(i);
+                    if (v == mDragView) continue;
+                    if (mForceDrawAllChildrenNextFrame ||
+                               (leftScreen <= i && i <= rightScreen && shouldDrawChild(v))) {
+                            canvas.save();
+                        	makeSlideEffect(canvas, v, i);
+                            drawChild(canvas, v, drawingTime);
+                            canvas.restore();
+                    }
+                }
+                // Draw the drag view on top (if there is one)
+                if (mDragView != null) {
+                    drawChild(canvas, mDragView, drawingTime);
+                }
+                mForceDrawAllChildrenNextFrame = false;
+                canvas.restore();
+            }
+        }
+    }
+//add by liuxianbang for Ani 20150203 (end)
 }

@@ -37,5 +37,9 @@
     <color name="quantum_panel_text_shadow_color">#FFC4C4C4</color>
     <color name="outline_color">#FFFFFFFF</color>
     <color name="widget_text_panel">#FF374248</color>
+<!--add by liuxianbang for Ani 20150203 (start)-->
+    <color name="screen_effect">#FF00c400</color>
+    <color name="screen_effect_origin">#FFFFFFFF</color>
+<!--add by liuxianbang for Ani 20150203 (start)-->
 
 </resources>

@@ -28,6 +28,8 @@ import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -54,6 +56,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+//add by liuxianbang for Ani 20150203 (start)
+import android.graphics.Camera;
+//add by liuxianbang for Ani 20150203 (end)
 
 /**
  * A simple callback interface which also provides the results of the task.
@@ -1561,4 +1566,91 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
         return String.format(getContext().getString(stringId), page + 1, count);
     }
+//add by liuxianbang for Ani 20150203 (start)
+    private final Matrix mMatrix = new Matrix();
+    private final Camera mCamera = new Camera();
+    
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        drawAnimations(canvas);
+        }
+        
+    @Override
+    protected void makeSlideEffect(Canvas canvas, View v, int index){
+        int childOffset = getChildOffset(index);
+        float deltaX = getScrollX()-childOffset;
+        float absDeltaX = Math.abs(deltaX);
+        float pageWidth = v.getWidth();
+        if(absDeltaX<=0 || absDeltaX >= pageWidth){
+            if(v.getAlpha() != 1.0f){
+                //v.setAlpha(1.0f);
+            }
+            return;
+        }
+        float pageHeight = v.getHeight();
+        float aspectRatio = pageHeight/pageWidth;
+        float horizonRate = 1-absDeltaX/pageWidth;
+        float alpha = SLIDE_EFFECT_ALPHA_LIMIT+horizonRate*(1-SLIDE_EFFECT_ALPHA_LIMIT);
+        float scale = SLIDE_EFFECT_SCALE_LIMIT+horizonRate*(1-SLIDE_EFFECT_SCALE_LIMIT);
+         switch(mSlideEffect){
+            case UI_SLIDE_EFFECT_LAYER:
+                if(deltaX>0){
+                    //deltaX>0 mean this is left page on screen
+                    canvas.translate(deltaX,0);
+                    canvas.scale(scale, scale,childOffset+pageWidth/2.0f, pageHeight/2);
+                    v.setAlpha(alpha);
+                    }
+                   break;
+            case UI_SLIDE_EFFECT_ROTATION:{
+                float rotateCenterX = childOffset+pageWidth/2.0f;
+                float angle = -90*deltaX/pageWidth;//Negative means outboard of cube; Positive will be inside
+                float postScale = SLIDE_EFFECT_ROTATE_LIMIT 
+                    + Math.abs(2*absDeltaX/pageWidth-1)*(1-SLIDE_EFFECT_ROTATE_LIMIT); 
+                Matrix matrix = new Matrix();
+                mCamera.save();
+                mCamera.rotateY(angle);
+                mCamera.getMatrix(matrix);
+                mCamera.restore();
+                matrix.preTranslate(-rotateCenterX, -pageHeight/2);
+                matrix.preScale(postScale, postScale, rotateCenterX, pageHeight/2);
+                matrix.postTranslate(rotateCenterX+deltaX, pageHeight/2);
+                canvas.concat(matrix);
+                v.setAlpha(alpha);
+                }
+                break;
+            case UI_SLIDE_EFFECT_CUBE:{
+                float rotateCenterX = calCubeRotateCenterX(pageWidth, childOffset, deltaX);
+                float angle = -90f*deltaX/pageWidth;//Negative means outboard of cube; Positive will be inside
+                Matrix matrix = new Matrix();
+                mCamera.save();
+                mCamera.rotateY(angle);
+                mCamera.getMatrix(matrix);
+                mCamera.restore();
+                matrix.preTranslate(-rotateCenterX, -pageHeight/2);
+                matrix.postTranslate(rotateCenterX, pageHeight/2);
+                canvas.concat(matrix);
+                }      
+                break;
+            case UI_SLIDE_EFFECT_FADE_INOUT:
+                v.setAlpha(alpha);
+               // needResetAlpha = false;
+            break;
+            case UI_SLIDE_EFFECT_JUMP:
+            //Both left and right screen translate on positive Y axis
+            canvas.translate(0, absDeltaX*aspectRatio);
+            break;
+            case UI_SLIDE_EFFECT_DEFAULT:
+            default:
+                break;
+         }
+    
+    }
+    private float calCubeRotateCenterX(float width, float offset, float deltaX){
+        float halfScreenX = width/2.0f;
+        float viewCenterX = offset+halfScreenX;
+        float leftRight = deltaX/Math.abs(deltaX);
+        float rotateCenterX = viewCenterX+leftRight*halfScreenX;
+        return rotateCenterX;
+    }
+//add by liuxianbang for Ani 20150203 (end)
 }

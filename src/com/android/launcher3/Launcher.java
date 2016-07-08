@@ -80,6 +80,7 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.view.OrientationEventListener;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewAnimationUtils;
@@ -91,7 +92,10 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.view.animation.Animation.AnimationListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Advanceable;
 import android.widget.FrameLayout;
@@ -499,6 +503,12 @@ public class Launcher extends Activity
             showFirstRunActivity();
             showFirstRunClings();
         }
+//add by liuxianbang for Ani 20150203 (start)
+        mWorkspace.setSlideEffect(getEffect());
+        mCurrentEffId = mEffectIds[getEffect()];
+        mScreenEffectColor = R.drawable.frame_yellow;
+        mOrigniColor = R.drawable.frame_white;
+//add by liuxianbang for Ani 20150203 (end)     
     }
 
     @Override
@@ -517,7 +527,6 @@ public class Launcher extends Activity
     protected void populateCustomContentContainer() {}
 
     /**
-     * Invoked by subclasses to signal a change to the {@link #addCustomContentToLeft} value to
      * ensure the custom content page is added or removed if necessary.
      */
     protected void invalidateHasCustomContentToLeft() {
@@ -946,6 +955,14 @@ public class Launcher extends Activity
 
     @Override
     protected void onResume() {
+//add by liuxianbang for Ani 20150203 (start)
+//        if(!mWorkspace.isStateEffects()){
+//           hideScreenEffects();
+//        }else{
+//            showScreenEffects();
+//        }
+//       mWorkspace.stopPreviewAni();
+//add by liuxianbang for Ani 20150203 (end)
         long startTime = 0;
         if (DEBUG_RESUME_TIME) {
             startTime = System.currentTimeMillis();
@@ -1273,6 +1290,9 @@ public class Launcher extends Activity
         }
 
         mOverviewPanel = (ViewGroup) findViewById(R.id.overview_panel);
+//add by liuxianbang for Ani 20150203 (start)
+        mScreenEffects = (ViewGroup)findViewById(R.id.screen_effects);
+//add by liuxianbang for Ani 20150203 (end)
         View widgetButton = findViewById(R.id.widget_button);
         widgetButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -1296,24 +1316,47 @@ public class Launcher extends Activity
         wallpaperButton.setOnTouchListener(getHapticFeedbackTouchListener());
 
         View settingsButton = findViewById(R.id.settings_button);
-        if (hasSettings()) {
-            settingsButton.setOnClickListener(new OnClickListener() {
+//add by liuxianbang for Ani 20150203 (start)
+          View settingsSpace = findViewById(R.id.settings_space);
+//add by liuxianbang for Ani 20150203 (end)
+//        if (hasSettings()) {
+//            settingsButton.setOnClickListener(new OnClickListener() {
+//                @Override
+//                public void onClick(View arg0) {
+//                    if (!mWorkspace.isSwitchingState()) {
+//                        onClickSettingsButton(arg0);
+//                    }
+//                }
+//            });
+//            settingsButton.setOnTouchListener(getHapticFeedbackTouchListener());
+//        } else {
+//            settingsButton.setVisibility(View.GONE);
+//            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) widgetButton.getLayoutParams();
+//            lp.gravity = Gravity.END | Gravity.TOP;
+//            widgetButton.requestLayout();
+//        }
+
+
+//add by liuxianbang for Ani 20150203 (start)
+        if(hasScreenEffects()){
+             View screenEffects = findViewById(R.id.screen_effect);
+		     screenEffects.setOnClickListener(new OnClickListener() {
                 @Override
-                public void onClick(View arg0) {
-                    if (!mWorkspace.isSwitchingState()) {
-                        onClickSettingsButton(arg0);
-                    }
+                public void onClick(View v) {
+//                    LauncherLog.d(TAG, "onClick:  v = " + v+",ScreenEffects!");
+                    mOverviewPanel.setVisibility(View.GONE);
+                    showScreenEffects();
                 }
             });
-            settingsButton.setOnTouchListener(getHapticFeedbackTouchListener());
-        } else {
-            settingsButton.setVisibility(View.GONE);
-            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) widgetButton.getLayoutParams();
-            lp.gravity = Gravity.END | Gravity.TOP;
-            widgetButton.requestLayout();
+        }else{
+            View screenEffect = findViewById(R.id.screen_effect);
+            View effectSpace = findViewById(R.id.screen_effect_space);
+            screenEffect.setVisibility(View.GONE);
+            effectSpace.setVisibility(View.GONE);
         }
+//add by liuxianbang for Ani 20150203 (end)
 
-        mOverviewPanel.setAlpha(1f);
+        mOverviewPanel.setAlpha(0f);
 
         // Setup the workspace
         mWorkspace.setHapticFeedbackEnabled(false);
@@ -1395,7 +1438,6 @@ public class Launcher extends Activity
      * Add a shortcut to the workspace.
      *
      * @param data The intent describing the shortcut.
-     * @param cellInfo The position on screen where to create the shortcut.
      */
     private void completeAddShortcut(Intent data, long container, long screenId, int cellX, int cellY) {
         int[] cellXY = mTmpAddItemCellCoordinates;
@@ -1474,7 +1516,6 @@ public class Launcher extends Activity
      * Add a widget to the workspace.
      *
      * @param appWidgetId The app widget id
-     * @param cellInfo The position on screen where to create the widget.
      */
     private void completeAddAppWidget(final int appWidgetId, long container, long screenId, AppWidgetHostView hostView,
             AppWidgetProviderInfo appWidgetInfo) {
@@ -1874,6 +1915,9 @@ public class Launcher extends Activity
         if (DEBUG_RESUME_TIME) {
             Log.d(TAG, "Time spent in onNewIntent: " + (System.currentTimeMillis() - startTime));
         }
+//add by liuxianbang for Ani 20150203 (start)
+        mWorkspace.setStateEffects(false);
+//add by liuxianbang for Ani 20150203 (end)
     }
 
     /**
@@ -1893,6 +1937,13 @@ public class Launcher extends Activity
 
     @Override
     public void onRestoreInstanceState(Bundle state) {
+//add by liuxianbang for Ani 20150203 (start)
+        mWorkspace.setSlideEffect(getEffect());
+        mCurrentEffId = mEffectIds[getEffect()];
+//        if (LauncherLog.DEBUG_ANI) {
+//            LauncherLog.d(LauncherLog.TAG_ANI,"onRestoreInstanceState,and id is:"+mCurrentEffId);
+//        }
+//add by liuxianbang for Ani 20150203 (end)  
         super.onRestoreInstanceState(state);
         for (int page : mSynchronouslyBoundPages) {
             mWorkspace.restoreInstanceStateForChild(page);
@@ -1901,6 +1952,13 @@ public class Launcher extends Activity
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+//add by liuxianbang for Ani 20150203 (start)
+//        if (LauncherLog.DEBUG_ANI) {
+//            LauncherLog.d(LauncherLog.TAG_ANI,"onSaveInstanceState!");
+//        }
+//        saveEffect();
+        //outState.putInt(EFFECT_ID,mCurrentEffId);
+//add by liuxianbang for Ani 20150203 (end)
         if (mWorkspace.getChildCount() > 0) {
             outState.putInt(RUNTIME_STATE_CURRENT_SCREEN, mWorkspace.getCurrentPageOffsetFromCustomContent());
         }
@@ -2185,7 +2243,6 @@ public class Launcher extends Activity
      * @param componentName The name of the component
      * @param screenId The ID of the screen where it should be added
      * @param cell The cell it should be added to, optional
-     * @param position The location on the screen where it was dropped, optional
      */
     void processShortcutFromDrop(ComponentName componentName, long container, long screenId, int[] cell, int[] loc) {
         resetAddInfo();
@@ -2209,8 +2266,8 @@ public class Launcher extends Activity
      * @param info The PendingAppWidgetInfo of the widget being added.
      * @param screenId The ID of the screen where it should be added
      * @param cell The cell it should be added to, optional
-     * @param position The location on the screen where it was dropped, optional
      */
+    //* @param position The location on the screen where it was dropped, optional
     void addAppWidgetFromDrop(PendingAddWidgetInfo info, long container, long screenId, int[] cell, int[] span,
             int[] loc) {
         resetAddInfo();
@@ -2324,6 +2381,17 @@ public class Launcher extends Activity
 
     @Override
     public void onBackPressed() {
+//add by liuxianbang for Ani 20150203 (start)
+        if(mWorkspace.isStateEffects()){
+//            if (LauncherLog.DEBUG_ANI) {
+//                LauncherLog.d(LauncherLog.TAG_ANI,"onBackPressed!");
+//            }
+             hideScreenEffects();
+             mWorkspace.stopPreviewAni();
+             mOverviewPanel.setVisibility(View.VISIBLE);
+             return;
+        }
+//add by liuxianbang for Ani 20150203 (end)
         if (isAllAppsVisible()) {
             if (mAppsCustomizeContent.getContentType() == AppsCustomizePagedView.ContentType.Applications) {
                 showWorkspace(true);
@@ -2896,7 +2964,6 @@ Log.w("zhao11folder","v:"+v);
      * Opens the user folder described by the specified tag. The opening of the folder is animated
      * relative to the specified View. If the View is null, no animation is played.
      *
-     * @param folderInfo The FolderInfo describing the folder to open.
      */
     public void openFolder(FolderIcon folderIcon) {
         Folder folder = folderIcon.getFolder();
@@ -4399,7 +4466,6 @@ Log.w("zhao11folder","v:"+v);
      * Restores a pending widget.
      *
      * @param appWidgetId The app widget id
-     * @param cellInfo The position on screen where to create the widget.
      */
     private void completeRestoreAppWidget(final int appWidgetId) {
         LauncherAppWidgetHostView view = mWorkspace.getWidgetForAppWidgetId(appWidgetId);
@@ -4707,9 +4773,9 @@ Log.w("zhao11folder","v:"+v);
     }
 
     public void lockScreenOrientation() {
-        if (isRotationEnabled()) {
-            setRequestedOrientation(mapConfigurationOriActivityInfoOri(getResources().getConfiguration().orientation));
-        }
+//        if (isRotationEnabled()) {
+//            setRequestedOrientation(mapConfigurationOriActivityInfoOri(getResources().getConfiguration().orientation));
+//        }
     }
 
     public void unlockScreenOrientation(boolean immediate) {
@@ -5070,9 +5136,98 @@ Log.w("zhao11folder","v:"+v);
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
         }
     }
+
+
+//add by liuxianbang for Ani 20150203 (start)
+    private int mOrigniColor;
+    private int mScreenEffectColor;
+    private ViewGroup mScreenEffects;
+    private static final String SCREEN_EFFECT_VALUE = "screen_effect_value";
+    private int[] mEffectIds = {R.id.effect0,R.id.effect1,R.id.effect2,R.id.effect3,R.id.effect4,R.id.effect5};
+    private int mCurrentEffId = mEffectIds[0];
+    public boolean hasScreenEffects(){
+        //return true;
+        //return android.os.SystemProperties.getBoolean("launcher.debug.effect",true);
+        return getResources().getBoolean(R.bool.has_screenEffect)?true:false;
+               //android.os.SystemProperties.getBoolean("launcher.debug.effect",false);
+       }
+    private void hideScreenEffects(){
+
+        mScreenEffects.setVisibility(View.GONE);
+        mWorkspace.setStateEffects(false);
+        if(mWorkspace.hasExtraEmptyScreen()){
+           mWorkspace.removeExtraEmptyScreen(false,false);
+        }
+        saveEffect();
+    }
+    private void saveEffect(){
+        int effect = mWorkspace.getSlideEffect();
+//        if (LauncherLog.DEBUG_ANI) {
+//            LauncherLog.d(LauncherLog.TAG_ANI,"saveEffect,and effect is:"+effect);
+//        }
+        android.provider.Settings.System.putInt(getContentResolver(), SCREEN_EFFECT_VALUE,effect);
+    }
+    private int getEffect(){
+        int effect = android.provider.Settings.System.getInt(getContentResolver(), SCREEN_EFFECT_VALUE,0);
+//        if (LauncherLog.DEBUG_ANI) {
+//            LauncherLog.d(LauncherLog.TAG_ANI,"getEffect,and effect is:"+effect);
+//        }
+        return effect;
+    }
+    private void showScreenEffects(){
+//        if (LauncherLog.DEBUG_ANI) {
+//            LauncherLog.d(LauncherLog.TAG_ANI,"showScreenEffects!");
+//        }
+        mScreenEffects.setVisibility(View.VISIBLE);
+        ((TextView)findViewById(mCurrentEffId)).setBackgroundResource(mScreenEffectColor);
+        mWorkspace.setStateEffects(true);
+        if(mWorkspace.getCurrentPage()==mWorkspace.getChildCount()-1){
+           mWorkspace.addExtraEmptyScreen();
+           mWorkspace.getChildAt(mWorkspace.getChildCount()-1).setAlpha(Workspace.OVERVIEW_ALPHA);
+           ((CellLayout)mWorkspace.getChildAt(mWorkspace.getChildCount()-1)).setBackgroundAlpha(Workspace.OVERVIEW_ALPHA);
+        }
+    }
+    public void effectClick(View v){
+
+        if(!mWorkspace.isPreAniStop())return;
+        if(mCurrentEffId!=v.getId()){
+           ((TextView)findViewById(mCurrentEffId)).setBackgroundResource(mOrigniColor);
+           ((TextView)v).setBackgroundResource(mScreenEffectColor);
+           mCurrentEffId = v.getId();
+        }
+        switch(v.getId()){
+            case R.id.effect0:
+                mWorkspace.setSlideEffect(0);
+                mAppsCustomizeContent.setSlideEffect(0);
+                break;
+            case R.id.effect1:
+                mWorkspace.setSlideEffect(1);
+                mAppsCustomizeContent.setSlideEffect(1);
+                break;
+            case R.id.effect2:
+                mWorkspace.setSlideEffect(2);
+                mAppsCustomizeContent.setSlideEffect(2);
+                break;
+            case R.id.effect3:
+                mWorkspace.setSlideEffect(3);
+                mAppsCustomizeContent.setSlideEffect(3);
+                break;
+            case R.id.effect4:
+                mWorkspace.setSlideEffect(4);
+                mAppsCustomizeContent.setSlideEffect(4);
+                break;
+            case R.id.effect5:
+                mWorkspace.setSlideEffect(5);
+                mAppsCustomizeContent.setSlideEffect(5);
+                break;    
+        }
+          mWorkspace.startPreviewAni();
+    }
+    public ViewGroup getScreenEffects() {
+        return mScreenEffects;
+    }
 }
-
-
+//add by liuxianbang for Ani 20150203 (end)
 interface LauncherTransitionable {
     View getContent();
 

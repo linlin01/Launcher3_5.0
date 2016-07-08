@@ -13,47 +13,111 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_horizontal|bottom"
-    android:orientation="horizontal">
+<!--add by liuxianbang for Ani 20150203 (start)-->
+<!--add JLLJ-146 liuxianbang 20141117 (start)-->
 
-    <TextView
-        android:id="@+id/wallpaper_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="start|top"
-        android:text="@string/wallpaper_button_text"
-        android:drawablePadding="4dp"
-        android:drawableTop="@drawable/wallpaper_button"
-        android:gravity="center_horizontal"
-        android:fontFamily="sans-serif-condensed"
-        android:textAllCaps="true"
-        android:textSize="12sp" />
-    <TextView
-        android:id="@+id/widget_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal|top"
-        android:text="@string/widget_button_text"
-        android:drawablePadding="4dp"
-        android:gravity="center_horizontal"
-        android:drawableTop="@drawable/widget_button"
-        android:fontFamily="sans-serif-condensed"
-        android:textAllCaps="true"
-        android:textSize="12sp"/>
-    <TextView
-        android:id="@+id/settings_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|top"
-        android:text="@string/settings_button_text"
-        android:drawablePadding="4dp"
-        android:gravity="center_horizontal"
-        android:drawableTop="@drawable/setting_button"
-        android:fontFamily="sans-serif-condensed"
-        android:textAllCaps="true"
-        android:textSize="12sp" />
-</FrameLayout>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_horizontal|bottom"
+    android:scrollbars="none"
+    android:fillViewport="true"
+     >
+     
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"    
+        android:orientation="horizontal">
+        
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+            
+        <TextView
+            android:id="@+id/wallpaper_button"
+            android:layout_width="@dimen/overpanel_dimen"
+            android:layout_height="@dimen/overpanel_dimen"
+            android:text="@string/wallpaper_button_text"
+            android:drawablePadding="4dp"
+            android:drawableTop="@drawable/wallpaper_button"
+            android:gravity="center_horizontal"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:textSize="12sp"
+            android:background="@drawable/frame_white"
+            android:layout_marginLeft="@dimen/overpanel_button_space_left"
+            android:layout_marginBottom="@dimen/overpanel_button_space_bottom"
+            android:paddingBottom="@dimen/overpanel_button_pad_bottom"
+            />
+        
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+        
+        <TextView
+            android:id="@+id/widget_button"
+            android:layout_width="@dimen/overpanel_dimen"
+            android:layout_height="@dimen/overpanel_dimen"
+            android:text="@string/widget_button_text"
+            android:drawablePadding="4dp"
+            android:gravity="center_horizontal"
+            android:drawableTop="@drawable/widget_button"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:background="@drawable/frame_white"
+            android:layout_marginLeft="@dimen/overpanel_button_space_left"
+            android:layout_marginBottom="@dimen/overpanel_button_space_bottom"
+            android:paddingBottom="@dimen/overpanel_button_pad_bottom"
+            android:textSize="12sp"/>
+            
+        <Space
+            android:id="@+id/settings_space"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+        
+        <TextView
+            android:id="@+id/settings_button"
+            android:layout_width="@dimen/overpanel_dimen"
+            android:layout_height="@dimen/overpanel_dimen"
+            android:text="@string/settings_button_text"
+            android:drawablePadding="4dp"
+            android:gravity="center_horizontal"
+            android:drawableTop="@drawable/setting_button"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:background="@drawable/frame_white"
+            android:layout_marginLeft="@dimen/overpanel_button_space_left"
+            android:layout_marginBottom="@dimen/overpanel_button_space_bottom"
+            android:paddingBottom="@dimen/overpanel_button_pad_bottom"
+            android:textSize="12sp" />
+                
+
+        <Space
+            android:id="@+id/screen_effect_space"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:id="@+id/screen_effect"
+            android:layout_width="@dimen/overpanel_dimen"
+            android:layout_height="@dimen/overpanel_dimen"
+            android:text="@string/screen_effect_title"
+            android:drawablePadding="4dp"
+            android:gravity="center_horizontal"
+            android:drawableTop="@drawable/effect_button"
+            android:fontFamily="sans-serif-condensed"
+            android:textAllCaps="true"
+            android:background="@drawable/frame_white"
+            android:layout_marginLeft="@dimen/overpanel_button_space_left"
+            android:layout_marginBottom="@dimen/overpanel_button_space_bottom"
+            android:paddingBottom="@dimen/overpanel_button_pad_bottom"
+            android:textSize="12sp"/>
+        
+        <Space
+            android:layout_width="@dimen/overpanel_button_space_left"
+            android:layout_height="match_parent"/>
+        
+    </LinearLayout>
+</HorizontalScrollView>
+<!--add JLLJ-146 liuxianbang 20141117 (end)-->
+<!--add by liuxianbang for Ani 20150203 (end)-->
