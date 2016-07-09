@@ -16,7 +16,8 @@
 <!--add by liuxianbang for Ani 20150203 (start)-->
 <!--add JLLJ-146 liuxianbang 20141117 (start)-->
 
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<HorizontalScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal|bottom"
@@ -28,11 +29,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"    
         android:orientation="horizontal">
-        
+
         <Space
             android:layout_width="0dp"
             android:layout_height="match_parent"/>
-            
+
         <TextView
             android:id="@+id/wallpaper_button"
             android:layout_width="@dimen/overpanel_dimen"

@@ -953,15 +953,18 @@ public class Launcher extends Activity
         FirstFrameAnimatorHelper.setIsVisible(true);
     }
 
+
+     //按下home键也会调用onResume（）方法，但是有延时的
     @Override
     protected void onResume() {
+        Log.i("zhao11ani","onResume()");
 //add by liuxianbang for Ani 20150203 (start)
-//        if(!mWorkspace.isStateEffects()){
-//           hideScreenEffects();
-//        }else{
-//            showScreenEffects();
-//        }
-//       mWorkspace.stopPreviewAni();
+        if(!mWorkspace.isStateEffects()){
+            hideScreenEffects();
+        }else{
+            showScreenEffects();
+        }
+       mWorkspace.stopPreviewAni();
 //add by liuxianbang for Ani 20150203 (end)
         long startTime = 0;
         if (DEBUG_RESUME_TIME) {
@@ -1317,7 +1320,7 @@ public class Launcher extends Activity
 
         View settingsButton = findViewById(R.id.settings_button);
 //add by liuxianbang for Ani 20150203 (start)
-          View settingsSpace = findViewById(R.id.settings_space);
+          //View settingsSpace = findViewById(R.id.settings_space);
 //add by liuxianbang for Ani 20150203 (end)
 //        if (hasSettings()) {
 //            settingsButton.setOnClickListener(new OnClickListener() {
@@ -1956,7 +1959,7 @@ public class Launcher extends Activity
 //        if (LauncherLog.DEBUG_ANI) {
 //            LauncherLog.d(LauncherLog.TAG_ANI,"onSaveInstanceState!");
 //        }
-//        saveEffect();
+        saveEffect();
         //outState.putInt(EFFECT_ID,mCurrentEffId);
 //add by liuxianbang for Ani 20150203 (end)
         if (mWorkspace.getChildCount() > 0) {
@@ -5141,18 +5144,16 @@ Log.w("zhao11folder","v:"+v);
 //add by liuxianbang for Ani 20150203 (start)
     private int mOrigniColor;
     private int mScreenEffectColor;
+    //mScreenEffects这个就是点击特效后的那个view，就在overview_panel位置
     private ViewGroup mScreenEffects;
     private static final String SCREEN_EFFECT_VALUE = "screen_effect_value";
     private int[] mEffectIds = {R.id.effect0,R.id.effect1,R.id.effect2,R.id.effect3,R.id.effect4,R.id.effect5};
     private int mCurrentEffId = mEffectIds[0];
     public boolean hasScreenEffects(){
-        //return true;
-        //return android.os.SystemProperties.getBoolean("launcher.debug.effect",true);
-        return getResources().getBoolean(R.bool.has_screenEffect)?true:false;
-               //android.os.SystemProperties.getBoolean("launcher.debug.effect",false);
+        return getResources().getBoolean(R.bool.has_screenEffect);
        }
-    private void hideScreenEffects(){
 
+    private void hideScreenEffects(){
         mScreenEffects.setVisibility(View.GONE);
         mWorkspace.setStateEffects(false);
         if(mWorkspace.hasExtraEmptyScreen()){
@@ -5160,24 +5161,22 @@ Log.w("zhao11folder","v:"+v);
         }
         saveEffect();
     }
+
+    /**
+     * 保存特效到settingsprovider里，以便开关机能记住上次的特效
+     */
     private void saveEffect(){
         int effect = mWorkspace.getSlideEffect();
-//        if (LauncherLog.DEBUG_ANI) {
-//            LauncherLog.d(LauncherLog.TAG_ANI,"saveEffect,and effect is:"+effect);
-//        }
-        android.provider.Settings.System.putInt(getContentResolver(), SCREEN_EFFECT_VALUE,effect);
+        //TODO 添加log
+        android.provider.Settings.System.putInt(getContentResolver(), SCREEN_EFFECT_VALUE ,effect);
     }
+
     private int getEffect(){
-        int effect = android.provider.Settings.System.getInt(getContentResolver(), SCREEN_EFFECT_VALUE,0);
-//        if (LauncherLog.DEBUG_ANI) {
-//            LauncherLog.d(LauncherLog.TAG_ANI,"getEffect,and effect is:"+effect);
-//        }
+        int effect = android.provider.Settings.System.getInt(getContentResolver(), SCREEN_EFFECT_VALUE , 0);
+        //TODO 添加log
         return effect;
     }
     private void showScreenEffects(){
-//        if (LauncherLog.DEBUG_ANI) {
-//            LauncherLog.d(LauncherLog.TAG_ANI,"showScreenEffects!");
-//        }
         mScreenEffects.setVisibility(View.VISIBLE);
         ((TextView)findViewById(mCurrentEffId)).setBackgroundResource(mScreenEffectColor);
         mWorkspace.setStateEffects(true);
@@ -5190,7 +5189,7 @@ Log.w("zhao11folder","v:"+v);
     public void effectClick(View v){
 
         if(!mWorkspace.isPreAniStop())return;
-        if(mCurrentEffId!=v.getId()){
+        if(mCurrentEffId != v.getId()){
            ((TextView)findViewById(mCurrentEffId)).setBackgroundResource(mOrigniColor);
            ((TextView)v).setBackgroundResource(mScreenEffectColor);
            mCurrentEffId = v.getId();
@@ -5219,7 +5218,7 @@ Log.w("zhao11folder","v:"+v);
             case R.id.effect5:
                 mWorkspace.setSlideEffect(5);
                 mAppsCustomizeContent.setSlideEffect(5);
-                break;    
+                break;
         }
           mWorkspace.startPreviewAni();
     }

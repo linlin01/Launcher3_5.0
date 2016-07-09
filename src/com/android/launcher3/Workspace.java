@@ -5198,7 +5198,7 @@ public class Workspace extends SmoothPagedView
         mPreAniStop = false;
         mReallyCurPage = mCurrentPage;
         if(mCurrentPage==getChildCount()-1){
-           //insertNewWorkspaceScreen(EXTRA_EMPTY_SCREEN_ID);
+           insertNewWorkspaceScreen(EXTRA_EMPTY_SCREEN_ID);
         }
         snapToPage(mCurrentPage+1,1000);
     }
@@ -5222,15 +5222,7 @@ public class Workspace extends SmoothPagedView
     
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        // Add by sunjie for Home Screen Edit Feature @{
-//        if (mLauncher.isPreviewStates()) {
-//            return true;
-//        }
-        // }@
         if(mPreviewAniNext||mPreviewAniLast){
-//           if (LauncherLog.DEBUG_ANI) {
-//                LauncherLog.d(LauncherLog.TAG_ANI,"dispatchTouchEvent,and state is:"+mPreviewAniNext+","+mPreviewAniLast);
-//            }
            return false;
         }
         return super.dispatchTouchEvent(event);
@@ -5260,7 +5252,7 @@ public class Workspace extends SmoothPagedView
         float pageHeight = v.getHeight();
         float aspectRatio = pageHeight/pageWidth;
         float horizonRate = 1-absDeltaX/pageWidth;
-        boolean needResetAlpha = true;//
+        boolean needResetAlpha = true;
         float alpha = SLIDE_EFFECT_ALPHA_LIMIT+horizonRate*(1-SLIDE_EFFECT_ALPHA_LIMIT);
         float scale = SLIDE_EFFECT_SCALE_LIMIT+horizonRate*(1-SLIDE_EFFECT_SCALE_LIMIT);
         switch(mSlideEffect){

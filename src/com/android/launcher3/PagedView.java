@@ -2906,9 +2906,6 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     public void setSlideEffect(int effect){
         mSlideEffect = effect;
         restoreAlpha();
-//        if (LauncherLog.DEBUG_ANI){
-//            LauncherLog.d(LauncherLog.TAG_ANI,"setSlideEffect,and effect is:"+effect);
-//        }
     }
     
     public int getSlideEffect(){
@@ -2923,7 +2920,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
             if(v.getAlpha() != 1.0f){
                 v.setAlpha(1.0f);
             }
-                }
+        }
     }
     
     protected void drawAnimations(Canvas canvas){

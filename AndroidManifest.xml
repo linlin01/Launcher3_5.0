@@ -70,6 +70,7 @@
     <uses-permission android:name="com.android.launcher3.permission.RECEIVE_LAUNCH_BROADCASTS_DH" />
     <uses-permission android:name="com.android.launcher3.permission.RECEIVE_FIRST_LOAD_BROADCAST_DH" />
 
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" /><!--add by zhaopenglin for slider animation-->
     <application
         android:name="com.android.launcher3.LauncherApplication"
         android:allowBackup="@bool/enable_backup"

@@ -27,6 +27,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Surface;
@@ -877,7 +878,11 @@ public class DeviceProfile {
             Rect r = getOverviewModeButtonBarRect();
             lp = (FrameLayout.LayoutParams) overviewMode.getLayoutParams();
             lp.gravity = Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM;
-            lp.width = Math.min(availableWidthPx,
+
+            //修改这里的参数就可以达到修改overview_panel这个控件的宽度
+            //这里的availableWidthPx是屏幕宽度，所以问题就出在calculateOverviewModeWidth这个方法里
+            //后续研究下
+            lp.width = Math.max(availableWidthPx,
                     calculateOverviewModeWidth(getVisibleChildCount(overviewMode)));
             lp.height = r.height();
             overviewMode.setLayoutParams(lp);
