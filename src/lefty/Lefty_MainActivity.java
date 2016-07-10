@@ -1844,41 +1844,41 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
     List<WallpapersPojo> mWallpapersList = new ArrayList<>();
 
 
-    public class WallPaperAdapter extends PagerAdapter {
-
-
-        @Override
-        public void destroyItem(ViewGroup container, int position, Object object) {
-            container.removeView((View) object);
-        }
-
-        @Override
-        public int getCount() {
-            return 3;
-        }
-
-        @Override
-        public Object instantiateItem(ViewGroup view, int position) {
-            View imageLayout = getActivity().getLayoutInflater().inflate(R.layout.lefty_wallpaper_row, view, false);
-            view.addView(imageLayout, 0);
-            return imageLayout;
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return view.equals(object);
-        }
-
-        @Override
-        public void restoreState(Parcelable state, ClassLoader loader) {
-        }
-
-        @Override
-        public Parcelable saveState() {
-            return null;
-        }
-
-    }
+//    public class WallPaperAdapter extends PagerAdapter {
+//
+//
+//        @Override
+//        public void destroyItem(ViewGroup container, int position, Object object) {
+//            container.removeView((View) object);
+//        }
+//
+//        @Override
+//        public int getCount() {
+//            return 3;
+//        }
+//
+//        @Override
+//        public Object instantiateItem(ViewGroup view, int position) {
+//            View imageLayout = getActivity().getLayoutInflater().inflate(R.layout.lefty_wallpaper_row, view, false);
+//            view.addView(imageLayout, 0);
+//            return imageLayout;
+//        }
+//
+//        @Override
+//        public boolean isViewFromObject(View view, Object object) {
+//            return view.equals(object);
+//        }
+//
+//        @Override
+//        public void restoreState(Parcelable state, ClassLoader loader) {
+//        }
+//
+//        @Override
+//        public Parcelable saveState() {
+//            return null;
+//        }
+//
+//    }
 
     public static int getScreenWidth(Activity context) {
 
