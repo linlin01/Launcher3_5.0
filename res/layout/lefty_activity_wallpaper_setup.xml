@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <!--<TextView
+        android:text="@string/setwallpaper"
+        android:layout_width="match_parent"
+        android:layout_height="?android:actionBarSize"
+        android:background="@drawable/tile_shadow_top" />
+-->
+
+
+    <ImageView
+        android:id="@+id/wall_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside" />
+    <Button
+        android:id="@+id/set_wallpaper_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#99000000"
+        android:paddingLeft="10dp"
+        android:drawableLeft="@drawable/ic_actionbar_accept"
+        android:drawablePadding="8dp"
+        android:gravity="start|center_vertical"
+        android:paddingRight="20dp"
+        android:text="@string/wallpaper_instructions"
+        android:textColor="#fff" />
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+</RelativeLayout>

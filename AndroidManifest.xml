@@ -70,8 +70,22 @@
     <uses-permission android:name="com.android.launcher3.permission.RECEIVE_LAUNCH_BROADCASTS_DH" />
     <uses-permission android:name="com.android.launcher3.permission.RECEIVE_FIRST_LOAD_BROADCAST_DH" />
 
+    <!--Permission required for lefty module-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="com.android.launcher3.permission.C2D_MESSAGE" />
+    <!-- This app has permission to register and receive dataE message. -->
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="com.android.launcher3.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <application
-        android:name="com.android.launcher3.LauncherApplication"
+        android:name="lefty.LeftyApplication"
         android:allowBackup="@bool/enable_backup"
         android:backupAgent="com.android.launcher3.LauncherBackupAgentHelper"
         android:hardwareAccelerated="true"
@@ -225,5 +239,59 @@
         <meta-data
             android:name="android.nfc.disable_beam_default"
             android:value="true" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="74ba51034034320e6d091c1ee645b91e47cb2979" />
+
+        <activity
+            android:name="lefty.PlayYoutubeActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"/>
+        <activity
+            android:name="lefty.WallpaperSetUpActivity"
+            android:finishOnCloseSystemDialogs="true"
+            android:icon="@mipmap/ic_launcher_wallpaper"
+            android:label="@string/crop_wallpaper"
+            android:theme="@style/Theme.WallpaperCropper">
+
+        </activity>
+
+        <activity
+            android:name="lefty.YahooSearchActivity"
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"></activity>
+
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.android.launcher3" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="lefty.gcm.MyGcmListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="lefty.gcm.MyInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
+            </intent-filter>
+        </service>
+        <service
+            android:name="lefty.gcm.RegistrationIntentService"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
     </application>
 </manifest>

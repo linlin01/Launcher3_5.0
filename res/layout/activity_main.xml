@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <android.com.leftydemo.CustomViewPager
+            android:id="@+id/matches_viewpager"
+            android:layout_width="match_parent"
+
+            android:layout_height="300dp" />
+
+        <!--<>-->
+
+
+        <LinearLayout
+            android:id="@+id/viewpageclickcontainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginTop="5dp"
+            android:orientation="horizontal"></LinearLayout>
+    </LinearLayout>
+
+    <!--</LinearLayout></LinearLayout>-->
+
+</ScrollView>

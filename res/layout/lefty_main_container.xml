@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/native_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
+
+    <ImageView
+        android:id="@+id/splash_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY" />
+
+
+    <fragment
+        android:id="@+id/fragment_id_native"
+        android:name="lefty.Lefty_MainActivity"
+        android:layout_width="match_parent"
+
+        android:layout_height="match_parent" />
+
+
+    <fragment
+        android:id="@+id/fragment_id_web"
+        android:name="lefty.webundle.WebViewFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:tag="web" />
+
+    <!--<Button
+        android:id="@+id/crashButton"
+        android:text="Click to crash Lefty?"
+        android:layout_width="match_parent"
+        android:layout_height="100dp" />-->
+
+</RelativeLayout>

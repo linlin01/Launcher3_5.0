@@ -108,6 +108,7 @@ import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.compat.UserHandleCompat;
 import com.android.launcher3.compat.UserManagerCompat;
+import com.google.android.youtube.player.YouTubeBaseActivity;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

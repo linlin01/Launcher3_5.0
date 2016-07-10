@@ -21,6 +21,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -28,6 +29,7 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
@@ -45,6 +47,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import android.database.Cursor;
 
 /**
  * Various utilities shared amongst the Launcher's classes.
@@ -74,7 +77,7 @@ public final class Utilities {
     // adb shell setprop log.tag.PROPERTY_NAME [VERBOSE | SUPPRESS]
     static final String FORCE_ENABLE_ROTATION_PROPERTY = "launcher_force_rotate";
     public static boolean sForceEnableRotation = isPropertyEnabled(FORCE_ENABLE_ROTATION_PROPERTY);
-
+    public static final String ALLOW_LEFTY_PREFERENCE_KEY = "pref_allowLefty";
     /**
      * Returns a FastBitmapDrawable with the icon, accurately sized.
      */
@@ -90,6 +93,25 @@ public final class Utilities {
      */
     static void resizeIconDrawable(Drawable icon) {
         icon.setBounds(0, 0, sIconTextureWidth, sIconTextureHeight);
+    }
+    public static boolean isLeftyAllowedPrefEnabled(Context context, boolean multiProcess) {
+        SharedPreferences sharedPrefs = context.getSharedPreferences(
+                LauncherAppState.getSharedPreferencesKey(), Context.MODE_PRIVATE | (multiProcess ?
+                        Context.MODE_MULTI_PROCESS : 0));
+        boolean allowRotationPref = sharedPrefs.getBoolean(ALLOW_LEFTY_PREFERENCE_KEY, true);
+        return allowRotationPref;
+    }
+
+    public static boolean isLeftyAllowedForDevice(Context context) {
+        return context.getResources().getBoolean(R.bool.allow_lefty);
+    }
+    public static Bitmap createIconBitmap(Cursor c, int iconIndex, Context context) {
+        byte[] data = c.getBlob(iconIndex);
+        try {
+            return createIconBitmap(BitmapFactory.decodeByteArray(data, 0, data.length), context);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private static boolean isPropertyEnabled(String propertyName) {

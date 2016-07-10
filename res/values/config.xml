@@ -13,6 +13,7 @@
     <bool name="is_tablet">false</bool>
     <bool name="is_large_tablet">false</bool>
     <bool name="allow_rotation">false</bool>
+    <bool name="allow_lefty">true</bool>
 
     <!-- Max number of page indicators to show -->
     <integer name="config_maxNumberOfPageIndicatorsToShow">21</integer>
@@ -106,4 +107,5 @@
     <!-- Name of a subclass of com.android.launcher3.BuildInfo used to
          get build information. Can be empty. -->
     <string name="build_info_class" translatable="false"></string>
+    <integer name="google_play_services_version">8487000</integer>
 </resources>

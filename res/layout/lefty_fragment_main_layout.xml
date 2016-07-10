@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <!-- <android.support.v4.widget.SwipeRefreshLayout
+         android:id="@+id/swipe_refresh_layout"
+         android:layout_width="match_parent"
+         android:layout_height="match_parent">
+ -->
+    <TextView
+        android:id="@+id/textview11"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:background="#000" />
+
+    <include
+        layout="@layout/lefty_activity_main"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textview11"></include>
+
+    <RelativeLayout
+        android:id="@+id/progress_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:background="#ffffff">
+
+        <LinearLayout
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/img"
+                android:layout_width="44.50dp"
+                android:layout_height="82.5dp"
+                android:background="@drawable/logo_loder" />\
+
+            <TextView
+                android:id="@+id/loader_textview"
+                android:layout_width="180dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:text="Please wait your buddy lefty is loading"
+                android:textColor="#474747"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <lefty.DottedProgressBar
+                android:id="@+id/progress"
+                android:layout_width="100dp"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="2dp"
+                android:padding="10dp"
+                app:activeDot="@drawable/red_dot"
+                app:dotSize="8dp"
+                app:inactiveDot="@drawable/grey_dot"
+                app:jumpingSpeed="300"
+                app:spacing="15dp" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/splash_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:scaleType="fitXY" />
+
+</RelativeLayout>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2015. Signity Software Solutions.
+  -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+
+
+    <ImageView
+        android:id="@+id/pagerImageView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="fitXY" >
+    </ImageView>
+
+    <ImageView
+        android:id="@+id/play_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <com.google.android.youtube.player.YouTubePlayerView
+        android:id="@+id/youtube_view"
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"/>
+
+</RelativeLayout>

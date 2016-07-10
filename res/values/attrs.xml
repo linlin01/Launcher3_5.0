@@ -73,7 +73,7 @@
         <!-- The color of the text -->
         <attr name="strokeTextColor" format="color" />
         <!-- The width of the stroke -->
-        <attr name="strokeWidth" format="float" />
+        <!--<attr name="strokeWidth" format="float" />-->
     </declare-styleable>
 
     <!-- HolographicLinearLayout specific attributes. -->
@@ -142,5 +142,15 @@
         <attr name="background" format="reference" />
         <attr name="ringOutset" format="dimension" />
         <attr name="indicatorSize" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="DottedProgressBar">
+        <attr name="emptyDotsColor" format="color" />
+        <attr name="activeDotColor" format="color"/>
+        <attr name="inactiveDot" format="reference|color"/>
+        <attr name="activeDot" format="reference|color"/>
+        <attr name="dotSize" format="dimension"/>
+        <attr name="spacing" format="dimension"/>
+        <attr name="jumpingSpeed" format="integer"/>
+        <attr name="activeDotIndex" format="integer"/>
     </declare-styleable>
 </resources>

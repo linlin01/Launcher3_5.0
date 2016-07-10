@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="5dp"
+    android:minHeight="100dp"
+    android:paddingBottom="5dp">
+
+    <ImageView
+        android:id="@+id/news_image"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="top"
+        android:scaleType="fitXY"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minHeight="100dp"
+        android:orientation="vertical"
+        android:paddingLeft="10dp">
+
+        <TextView
+            android:id="@+id/news_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:ellipsize="end"
+            android:textSize="16sp"
+            android:maxLines="2"
+            android:text="Looking for some already great color combinations?"
+            android:textColor="#2a2a2a" />
+
+        <TextView
+            android:id="@+id/news_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textColor="#707070"
+            android:gravity="left"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:visibility="invisible"
+            android:text=""
+            android:minHeight="40dp"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/news_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:visibility="invisible"
+            android:textColor="#bababa"
+            android:text="15 jun 2016"
+            android:textSize="11sp" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fff"
+    android:orientation="vertical">
+
+
+    <Button
+        android:id="@+id/crashButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:text="Force Crash!"
+        android:visibility="gone" />
+
+
+    <ImageButton
+        android:id="@+id/setting_button"
+        android:layout_width="22.5dp"
+        android:layout_height="29dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="35dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/greeting_text"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:layout_alignParentBottom="true"
+        android:background="#ffffff"
+        android:gravity="center"
+        android:hint=""
+        android:text=""
+        android:textSize="20sp"
+        android:visibility="gone" />
+
+
+    <TextView
+        android:id="@+id/mem_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#fff"
+        android:gravity="center"
+        android:minHeight="100dp"
+        android:textColor="#000"
+        android:textSize="20sp"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/webview_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="0dp">
+
+        <!-- <lockleft.utils.HTML5WebView
+             android:id="@+id/webview"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent" />-->
+
+
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/status_bar_textview"
+        android:background="#000"
+        android:layout_width="match_parent"
+        android:layout_height="25dp" />
+
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <RelativeLayout
+        android:id="@+id/progress_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:background="#ffffff">
+
+        <LinearLayout
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <ImageView
+                android:id="@+id/img"
+                android:layout_width="44.50dp"
+                android:layout_height="82.5dp"
+                android:background="@drawable/logo_loder" />\
+
+            <!--<TextView
+                android:id="@+id/loader_textview"
+                android:layout_width="180dp"
+                android:textSize="18sp"
+                android:gravity="center"
+                android:layout_marginTop="2dp"
+                android:textColor="#474747"
+                android:text="Please wait your buddy lefty is loading"
+                android:layout_height="wrap_content" />-->
+
+            <lefty.DottedProgressBar
+                android:id="@+id/progress"
+                android:layout_width="100dp"
+                android:layout_height="0dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="2dp"
+                android:padding="10dp"
+                app:activeDot="@drawable/red_dot"
+                app:dotSize="8dp"
+                app:inactiveDot="@drawable/grey_dot"
+                app:jumpingSpeed="300"
+                app:spacing="15dp" />
+
+        </LinearLayout>
+    </RelativeLayout>
+
+
+    <ImageView
+        android:id="@+id/native_imageview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/splash"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+</RelativeLayout>

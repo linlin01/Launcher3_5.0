@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#fff"
+    android:paddingTop="10dp"
+    android:paddingRight="10dp"
+   >
+
+    <TextView
+        android:id="@+id/publisher_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="header"
+        android:paddingLeft="10dp"
+        android:textSize="18sp"
+        android:textAllCaps="true"
+        android:textColor="@android:color/black"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/footerlayout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:paddingLeft="5dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/publisher_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="0dp"
+            android:layout_marginLeft="0dp"
+            android:buttonTint="#009688" />
+
+        <TextView
+            android:id="@+id/publisher_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="header"
+            android:paddingLeft="2dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black" />
+
+    </LinearLayout>
+
+
+</LinearLayout>
