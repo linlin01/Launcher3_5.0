@@ -92,17 +92,17 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
     private void logUser() {
         // TODO: Use the current user's information
         // You can call any combination of these three methods
-        Crashlytics.getInstance().setUserIdentifier("12345");
-        Crashlytics.getInstance().setUserEmail("user@fabric.io");
-        Crashlytics.getInstance().setUserName("Test User");
+//        Crashlytics.getInstance().setUserIdentifier("12345");
+//        Crashlytics.getInstance().setUserEmail("user@fabric.io");
+//        Crashlytics.getInstance().setUserName("Test User");
     }
 
     @Override
     protected void populateCustomContentContainer() {
-//        if (mCustomView != null) {
-//            //getWorkspace().removeCustomContentPage();
-//            mCustomView = null;
-//        }
+        if (mCustomView != null) {
+            getWorkspace().removeCustomContentPage();
+            mCustomView = null;
+        }
         try {
             mCustomView = getLayoutInflater().inflate(R.layout.lefty_main_container, null);
         } catch (Exception e) {
@@ -115,7 +115,7 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
 //                throw new RuntimeException("This exception thrown by tajinder inside " + this.getClass().getName());
 //            }
 //        });
-        //if (mCustomView != null)
+        if (mCustomView != null)
         addCustomContentToLeft(mCustomView);
     }
 

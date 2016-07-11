@@ -96,7 +96,7 @@
         android:supportsRtl="true">
 
         <activity
-            android:name="com.android.launcher3.Launcher"
+            android:name="lefty.LeftyActivity"
             android:clearTaskOnLaunch="true"
             android:launchMode="singleTask"
             android:screenOrientation="nosensor"

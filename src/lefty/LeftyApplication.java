@@ -32,21 +32,21 @@ public class LeftyApplication extends Application {
         super.onCreate();
         initImageLoader(getApplicationContext());
 // Set up Crashlytics, disabled for debug builds
-        Crashlytics crashlyticsKit = new Crashlytics.Builder()
-                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                .build();
-
-        TwitterAuthConfig authConfig = new TwitterAuthConfig(CommonsUtils.TWITTER_KEY, CommonsUtils.TWITTER_SECRET);
-        final Fabric fabric = new Fabric.Builder(this)
-                .kits(new Twitter(authConfig),new Crashlytics())
-
-                .logger(new DefaultLogger(Log.DEBUG))
-                .debuggable(true)
-                .build();
-
-        Fabric.with(fabric);
-        Fabric.with(this, new Twitter(authConfig));
-        Fabric.with(this, new TwitterCore(authConfig), new TweetUi());
+//        Crashlytics crashlyticsKit = new Crashlytics.Builder()
+//                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
+//                .build();
+//
+//        TwitterAuthConfig authConfig = new TwitterAuthConfig(CommonsUtils.TWITTER_KEY, CommonsUtils.TWITTER_SECRET);
+//        final Fabric fabric = new Fabric.Builder(this)
+//                .kits(new Twitter(authConfig),new Crashlytics())
+//
+//                .logger(new DefaultLogger(Log.DEBUG))
+//                .debuggable(true)
+//                .build();
+//
+//        Fabric.with(fabric);
+//        Fabric.with(this, new Twitter(authConfig));
+//        Fabric.with(this, new TwitterCore(authConfig), new TweetUi());
 
     }
 
