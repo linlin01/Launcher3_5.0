@@ -189,7 +189,6 @@ public class Folder extends LinearLayout implements DragSource, View.OnClickList
 
         LauncherAppState app = LauncherAppState.getInstance();
         DeviceProfile grid = app.getDynamicGrid().getDeviceProfile();
-Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.folderCellHeightPx);
         mContent.setCellDimensions(grid.folderCellWidthPx, grid.folderCellHeightPx);
         mContent.setGridSize(0, 0);
         mContent.getShortcutsAndWidgets().setMotionEventSplittingEnabled(false);
@@ -231,7 +230,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
     };
 
     public void onClick(View v) {
-        Log.e("zhao11folder","Folder v"+v);
         Object tag = v.getTag();
         if (tag instanceof ShortcutInfo) {
             mLauncher.onClick(v);
@@ -319,7 +317,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
      */
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
-        Log.e("zhao11folder","Folder ev"+ev);
         mLauncher.closeFolder();
         return true;
     }
@@ -815,7 +812,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
     };
 
     public void completeDragExit() {
-        Log.i("zhao11closefolder","closeFolder111completeDragExit");
         mLauncher.closeFolder();
         mCurrentDragInfo = null;
         mCurrentDragView = null;
@@ -830,7 +826,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
         // We only close the folder if this is a true drag exit, ie. not because
         // a drop has occurred above the folder.
         if (!d.dragComplete) {
-            Log.i("zhao11closefolder","closeFolder111onDragExit");
             mOnExitAlarm.setOnAlarmListener(mOnExitAlarmListener);
             mOnExitAlarm.setAlarm(ON_EXIT_CLOSE_DELAY);
         }
@@ -870,7 +865,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
                 if (!successfulDrop) {
                     mSuppressFolderDeletion = true;
                 }
-                Log.i("zhao11closefolder","closeFolder111onDropCompleted");
                 completeDragExit();
             }
         }
@@ -1017,7 +1011,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
     }
 
     private void centerAboutIcon() {
-        Log.i("zhao11folder","centerAboutIcon");
         DragLayer.LayoutParams lp = (DragLayer.LayoutParams) getLayoutParams();
 
         DragLayer parent = (DragLayer) mLauncher.findViewById(R.id.drag_layer);
@@ -1025,7 +1018,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
         int width =  parent.getWidth();
         //int height = getFolderHeight();
         int height = parent.getHeight();
-        Log.i("zhao11folder","width:"+width+",height:"+height);
         float scale = parent.getDescendantRectRelativeToSelf(mFolderIcon, mTempRect);
 
         LauncherAppState app = LauncherAppState.getInstance();
@@ -1080,7 +1072,6 @@ Log.i("zhao11size","grid.folderCellWidthPx:"+grid.folderCellWidthPx+","+grid.fol
          lp.x = 0;
          lp.y = 0;
          */
-        Log.i("zhao11folder","left:"+left+",top:"+top);
         lp.width = width;
         lp.height = height;
         lp.x = 0;

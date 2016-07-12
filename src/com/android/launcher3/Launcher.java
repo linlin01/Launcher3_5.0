@@ -441,7 +441,7 @@ public class Launcher extends Activity
 
         mAppWidgetHost = new LauncherAppWidgetHost(this, APPWIDGET_HOST_ID);
         mAppWidgetHost.startListening();
-
+        new UnreadContentObserver(this);
         // If we are getting an onCreate, we can actually preempt onResume and unset mPaused here,
         // this also ensures that any synchronous binding below doesn't re-trigger another
         // LauncherModel load.
@@ -2367,7 +2367,6 @@ public class Launcher extends Activity
         if (v.getWindowToken() == null) {
             return;
         }
-Log.w("zhao11folder","v:"+v);
         if (!mWorkspace.isFinishedSwitchingState()) {
             return;
         }
@@ -2927,7 +2926,6 @@ Log.w("zhao11folder","v:"+v);
     }
 
     public void closeFolder() {
-        Log.i("zhao11closefolder","closeFolder");
         Folder folder = mWorkspace != null ? mWorkspace.getOpenFolder() : null;
         if (folder != null) {
             if (folder.isEditingName()) {
@@ -2938,7 +2936,6 @@ Log.w("zhao11folder","v:"+v);
     }
 
     void closeFolder(Folder folder) {
-        Log.i("zhao11closefolder","closeFolder11111111111111");
         folder.getInfo().opened = false;
         isFolderClose = true;
         ViewGroup parent = (ViewGroup) folder.getParent().getParent();

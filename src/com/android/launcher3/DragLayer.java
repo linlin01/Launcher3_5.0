@@ -215,7 +215,6 @@ public class DragLayer extends FrameLayout implements ViewGroup.OnHierarchyChang
 
             getDescendantRectRelativeToSelf(currentFolder, hitRect);
             if (!isEventOverFolder(currentFolder, ev)) {
-                Log.i("zhao11closefolder", "closeFolder111DragLayer");
                 mLauncher.closeFolder();
                 return true;
             }
