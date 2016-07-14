@@ -17,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -106,6 +107,7 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
         try {
             mCustomView = getLayoutInflater().inflate(R.layout.lefty_main_container, null);
         } catch (Exception e) {
+        Log.d("LUORAN", "*****" + e);
             e.printStackTrace();
         }
 //        Button mCrashButton = (Button) mCustomView.findViewById(R.id.crashButton);
@@ -115,7 +117,7 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
 //                throw new RuntimeException("This exception thrown by tajinder inside " + this.getClass().getName());
 //            }
 //        });
-        if (mCustomView != null)
+       // if (mCustomView != null)
         addCustomContentToLeft(mCustomView);
     }
 
