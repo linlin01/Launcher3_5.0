@@ -280,7 +280,7 @@ public class Launcher extends Activity
 
     private View mAllAppsButton;
 
-    private SearchDropTargetBar mSearchDropTargetBar;
+    protected SearchDropTargetBar mSearchDropTargetBar;
     private AppsCustomizeTabHost mAppsCustomizeTabHost;
     private AppsCustomizePagedView mAppsCustomizeContent;
     private boolean mAutoAdvanceRunning = false;

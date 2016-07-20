@@ -107,7 +107,6 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
         try {
             mCustomView = getLayoutInflater().inflate(R.layout.lefty_main_container, null);
         } catch (Exception e) {
-        Log.d("LUORAN", "*****" + e);
             e.printStackTrace();
         }
 //        Button mCrashButton = (Button) mCustomView.findViewById(R.id.crashButton);
@@ -117,7 +116,6 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
 //                throw new RuntimeException("This exception thrown by tajinder inside " + this.getClass().getName());
 //            }
 //        });
-       // if (mCustomView != null)
         addCustomContentToLeft(mCustomView);
     }
 
@@ -148,7 +146,10 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
                 if (fromResume) {
                     return;
                 }
-
+Log.i("zhao22","onShow");
+                if (mSearchDropTargetBar != null) {
+                    mSearchDropTargetBar.hideSearchBar(false);
+                }
 
                 if (CommonsUtils.isConnectedToInternet(LeftyActivity.this)) {
 
@@ -256,6 +257,10 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
 
             @Override
             public void onHide() {
+Log.i("zhao22","onHide");
+                if (mSearchDropTargetBar != null) {
+                    mSearchDropTargetBar.showSearchBar(false);
+                }
 
                 if (isOnCustomContent()) {
                     return;

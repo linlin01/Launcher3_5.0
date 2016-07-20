@@ -148,6 +148,7 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
             prepareStartAnimation(mQSBSearchBar);
             mQSBSearchBarAnim.reverse();
         } else {
+            getLayoutParams().height = LauncherAppState.getInstance().getDynamicGrid().getDeviceProfile().getSearchBarSpaceHeightPx();
             mQSBSearchBarAnim.cancel();
             if (mEnableDropDownDropTargets) {
                 mQSBSearchBar.setTranslationY(0);
@@ -170,7 +171,9 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
             } else {
                 mQSBSearchBar.setAlpha(0f);
             }
+            getLayoutParams().height=0;
         }
+
         mIsSearchBarHidden = true;
     }
 

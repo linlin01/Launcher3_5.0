@@ -429,7 +429,9 @@ public class DeviceProfile {
             allAppsNumCols = Math.max(minEdgeCellCount, Math.min(maxCols, allAppsNumCols));
         }
     }
-
+    public int getSearchBarSpaceHeightPx(){
+        return searchBarSpaceHeightPx;
+    }
     void updateFromConfiguration(Context context, Resources resources, int wPx, int hPx,
                                  int awPx, int ahPx) {
         Configuration configuration = resources.getConfiguration();
