@@ -5,16 +5,12 @@ import android.content.Context;
 import android.util.Log;
 
 import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.core.CrashlyticsCore;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.twitter.sdk.android.Twitter;
-import com.twitter.sdk.android.core.BuildConfig;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterCore;
-import com.twitter.sdk.android.tweetui.TweetUi;
 
 import io.fabric.sdk.android.DefaultLogger;
 import io.fabric.sdk.android.Fabric;
@@ -31,22 +27,15 @@ public class LeftyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         initImageLoader(getApplicationContext());
-// Set up Crashlytics, disabled for debug builds
-//        Crashlytics crashlyticsKit = new Crashlytics.Builder()
-//                .core(new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-//                .build();
-//
-//        TwitterAuthConfig authConfig = new TwitterAuthConfig(CommonsUtils.TWITTER_KEY, CommonsUtils.TWITTER_SECRET);
-//        final Fabric fabric = new Fabric.Builder(this)
-//                .kits(new Twitter(authConfig),new Crashlytics())
-//
-//                .logger(new DefaultLogger(Log.DEBUG))
-//                .debuggable(true)
-//                .build();
-//
-//        Fabric.with(fabric);
-//        Fabric.with(this, new Twitter(authConfig));
-//        Fabric.with(this, new TwitterCore(authConfig), new TweetUi());
+
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(CommonsUtils.TWITTER_KEY, CommonsUtils.TWITTER_SECRET);
+        final Fabric fabric = new Fabric.Builder(this)
+                .kits(new Twitter(authConfig),new Crashlytics())
+                .logger(new DefaultLogger(Log.DEBUG))
+                .debuggable(false)
+                .build();
+
+       // Fabric.with(fabric);
 
     }
 

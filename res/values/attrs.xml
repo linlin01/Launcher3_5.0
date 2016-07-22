@@ -136,12 +136,24 @@
     </declare-styleable>
     <declare-styleable name="Include">
         <attr name="workspace" format="reference" />
+        <attr name="folderItems" format="reference" />
     </declare-styleable>
+
+    <!-- XML attributes used by default_toppackage.xml -->
+    <declare-styleable name="TopPackage">
+        <attr name="topPackageName" format="string" />
+        <attr name="topClassName" format="string" />
+        <attr name="topOrder" format="integer" />
+    </declare-styleable>        
 
     <declare-styleable name="PreloadIconDrawable">
         <attr name="background" format="reference" />
         <attr name="ringOutset" format="dimension" />
         <attr name="indicatorSize" format="dimension" />
+    </declare-styleable>
+
+    <declare-styleable name="InsettableFrameLayout_Layout">
+        <attr name="layout_ignoreInsets" format="boolean" />
     </declare-styleable>
     <declare-styleable name="DottedProgressBar">
         <attr name="emptyDotsColor" format="color" />

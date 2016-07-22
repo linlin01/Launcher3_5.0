@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -12,14 +13,15 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.android.launcher3.Launcher;
 import com.android.launcher3.R;
@@ -39,11 +41,11 @@ import com.google.gson.Gson;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.lang.ref.WeakReference;
-
+import java.util.List;
 import lefty.ApiCalls.GcmCall;
 import lefty.models.Example;
 import lefty.webundle.WebViewFragment;
-
+import android.util.Log;
 /**
  * Created by tajinder on 14/6/16.
  */
@@ -55,8 +57,9 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
 
     Lefty_MainActivity mNativeFragment;
     WebViewFragment mFragmentWeb;
-
-
+    CountDownTimer mBannerCountdowntimer;
+    AdvertismentDialogFragment dialogFragment;
+    boolean flag=false;
     SharedPreferences getSharedPreferences() {
         return getSharedPreferences("Lefty", MODE_PRIVATE);
     }
@@ -66,7 +69,7 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
         return Utilities.isLeftyAllowedPrefEnabled(getApplicationContext(), false);
     }
 
-    View mCustomView;
+    RelativeLayout mCustomView;
 
 
     GcmCall mGcmCallTask;
@@ -87,25 +90,29 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
         LeftyApplication.setmCActivity(this);
         createLocationRequest();
         LauncherActivityUpdater.getInstance().setListeners(this);
-//        logUser();
     }
 
     private void logUser() {
         // TODO: Use the current user's information
         // You can call any combination of these three methods
-//        Crashlytics.getInstance().setUserIdentifier("12345");
-//        Crashlytics.getInstance().setUserEmail("user@fabric.io");
-//        Crashlytics.getInstance().setUserName("Test User");
+        Crashlytics.getInstance().setUserIdentifier("12345");
+        Crashlytics.getInstance().setUserEmail("user@fabric.io");
+        Crashlytics.getInstance().setUserName("Test User");
     }
 
     @Override
     protected void populateCustomContentContainer() {
-        if (mCustomView != null) {
-            getWorkspace().removeCustomContentPage();
-            mCustomView = null;
-        }
+//        if (mCustomView != null) {
+//            //getWorkspace().removeCustomContentPage();
+//            mCustomView = null;
+//        }
+//        if (mCustomView != null){
+//            mCustomView.removeAllViews();
+//            mCustomView =null;
+//        }
+
         try {
-            mCustomView = getLayoutInflater().inflate(R.layout.lefty_main_container, null);
+            mCustomView = (RelativeLayout) getLayoutInflater().inflate(R.layout.lefty_main_container, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,6 +123,8 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
 //                throw new RuntimeException("This exception thrown by tajinder inside " + this.getClass().getName());
 //            }
 //        });
+        //if (mCustomView != null)
+		Log.d("LUORAN","addCustomContentToLeft");
         addCustomContentToLeft(mCustomView);
     }
 
@@ -134,6 +143,15 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
             @Override
             public void onScrollProgressChanged(float progress) {
                 CommonsUtils.hideKeyboard(LeftyActivity.this);
+
+                if (dialogFragment != null) {
+                    dialogFragment.dismiss();
+                }
+
+                if (mBannerCountdowntimer != null) {
+                    mBannerCountdowntimer.cancel();
+                    mBannerCountdowntimer = null;
+                }
             }
 
             @Override
@@ -143,14 +161,13 @@ public class LeftyActivity extends Launcher implements LauncherActivityUpdater.U
 
             @Override
             public void onShow(boolean fromResume) {
+            flag=true;
                 if (fromResume) {
                     return;
                 }
-Log.i("zhao22","onShow");
                 if (mSearchDropTargetBar != null) {
                     mSearchDropTargetBar.hideSearchBar(false);
-                }
-
+               }
                 if (CommonsUtils.isConnectedToInternet(LeftyActivity.this)) {
 
                     if (TextUtils.isEmpty(getAppTypeFromPref())) {
@@ -168,6 +185,7 @@ Log.i("zhao22","onShow");
                                 }
 
                                 if (!TextUtils.isEmpty(response)) {
+                                    saveNumOfSwipeInPref();
                                     saveAppTypeInPref(response);
                                     mApplicationType = response;
                                     whichFragment();
@@ -190,11 +208,9 @@ Log.i("zhao22","onShow");
                                         }
                                     }
 
-
                                 } else {
                                     //showNativeStaticImage();
                                 }
-
 
                             }
 
@@ -208,6 +224,7 @@ Log.i("zhao22","onShow");
                         }
                     } else {
                         mApplicationType = getAppTypeFromPref();
+                        saveNumOfSwipeInPref();
                         whichFragment();
                         if (CommonsUtils.checkPlayServices(LeftyActivity.this)) {
                             if (isGPSEnabled()) {
@@ -257,9 +274,13 @@ Log.i("zhao22","onShow");
 
             @Override
             public void onHide() {
-Log.i("zhao22","onHide");
+			    flag=false;
                 if (mSearchDropTargetBar != null) {
                     mSearchDropTargetBar.showSearchBar(false);
+                }
+                if (mBannerCountdowntimer != null) {
+                    mBannerCountdowntimer.cancel();
+                    mBannerCountdowntimer = null;
                 }
 
                 if (isOnCustomContent()) {
@@ -281,6 +302,81 @@ Log.i("zhao22","onHide");
 
 
         addToCustomContentPage(customView, callbacks, "custom view");
+    }
+
+    void saveNumOfSwipeInPref() {
+
+
+        int how_many_swipe_done = getSharedPreferences().getInt(CommonsUtils.SHARED_PREF_NO_OF_SWIPE, 1);
+        String swipe_frequency = getSharedPreferences().getString(CommonsUtils.SHARED_PREF_ADV_FREQUENCY, "1");
+
+
+        /**
+         * if swipe_frequency is 0 mean we don't want to show any advertisment
+         */
+        if (Integer.parseInt(swipe_frequency) == 0) {
+            SharedPreferences.Editor editor = getSharedPreferences().edit();
+            editor.putInt(CommonsUtils.SHARED_PREF_NO_OF_SWIPE, 1);
+            editor.commit();
+            return;
+        }
+
+        if (Integer.parseInt(swipe_frequency) == how_many_swipe_done || how_many_swipe_done > Integer.parseInt(swipe_frequency)) {
+
+            /**
+             * if we do not have any data of lefy or getdata api isn't hit yet then we simply return with increasing
+             * no of swipe counter
+             */
+            String response = getDataFromPref();
+            if (TextUtils.isEmpty(response)) {
+                SharedPreferences.Editor editor = getSharedPreferences().edit();
+                editor.putInt(CommonsUtils.SHARED_PREF_NO_OF_SWIPE, ++how_many_swipe_done);
+                editor.commit();
+                return;
+            }
+
+            showDialogForAdvertisment();
+            SharedPreferences.Editor editor = getSharedPreferences().edit();
+            editor.putInt(CommonsUtils.SHARED_PREF_NO_OF_SWIPE, 1);
+            editor.commit();
+        } else {
+
+
+            SharedPreferences.Editor editor = getSharedPreferences().edit();
+            editor.putInt(CommonsUtils.SHARED_PREF_NO_OF_SWIPE, ++how_many_swipe_done);
+            editor.commit();
+        }
+
+    }
+
+    String getDataFromPref() {
+        return getSharedPreferences().getString("response", null);
+    }
+
+
+    /**
+     * countdown to show Advertisment Dialog
+     */
+    private void showDialogForAdvertisment() {
+
+        String showTime = getSharedPreferences().getString(CommonsUtils.SHARED_PREF_ADV_SHOW_TIME, "10");
+
+        mBannerCountdowntimer = new CountDownTimer(Integer.parseInt(showTime) * 100, 100) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                String image = getSharedPreferences().getString(CommonsUtils.SHARED_PREF_ADV_IMAGE, "");
+                String redirect_link = getSharedPreferences().getString(CommonsUtils.SHARED_PREF_ADV_REDIRECT_URL, "");
+                dialogFragment = AdvertismentDialogFragment.newInstance(image, redirect_link);
+                dialogFragment.show(getFragmentManager(), AdvertismentDialogFragment.class.getName());
+            }
+        }.start();
+
+
     }
 
 
@@ -315,8 +411,8 @@ Log.i("zhao22","onHide");
         }
         return false;
     }
-
-    //@Override
+/*
+    @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
 
         switch (requestCode) {
@@ -340,7 +436,7 @@ Log.i("zhao22","onHide");
         }
     }
 
-
+*/
     @Override
     public QSBScroller addToCustomContentPage(View customContent, CustomContentCallbacks callbacks, String description) {
         super.addToCustomContentPage(customContent, callbacks, description);
@@ -354,14 +450,29 @@ Log.i("zhao22","onHide");
         mNativeImageView = (ImageView) mCustomView.findViewById(R.id.native_imageview);
         ImageLoader.getInstance().displayImage("drawable://" + R.drawable.native_screen, mNativeImageView);
         ImageLoader.getInstance().displayImage("drawable://" + R.drawable.splash, mSplashImageView);
+        return mQsbScroller;
+    }
 
-        return null;
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+//        Log.e("new intent","")
+//        String intentExtra = intent.getStringExtra("from");
+//        if (!TextUtils.isEmpty(intentExtra) && intentExtra.equalsIgnoreCase("N")){
+//            Toast.makeText(LeftyActivity.this, "You welcome", Toast.LENGTH_SHORT).show();
+//            showWorkspace(0,);
+//        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         //ViewServer.get(this).setFocusedWindow(this);
+		 if(flag){
+            if (mSearchDropTargetBar != null) {
+                mSearchDropTargetBar.hideSearchBar(false);
+            }
+        }
     }
 
     void saveAddressInPref(String address) {
@@ -464,7 +575,8 @@ Log.i("zhao22","onHide");
                 response = CommonsUtils.requestWebService(url);
                 if (!TextUtils.isEmpty(response) && CommonsUtils.isJSONValid(response)) {
                     Gson gson = new Gson();
-                    gson.fromJson(response, Example.class);
+                    Example example = gson.fromJson(response, Example.class);
+                    saveAdvDataInPref(example.getData().getAdvbanner());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -491,6 +603,59 @@ Log.i("zhao22","onHide");
 
     }
 
+    private void saveAdvDataInPref(List<Example.AdvBanner> banner1) {
+
+        if (banner1 == null || banner1.size() == 0) {
+            SharedPreferences.Editor editor = getSharedPreferences().edit();
+            editor.putString(CommonsUtils.SHARED_PREF_ADV_BANNER_ID, "");
+            editor.commit();
+
+            SharedPreferences.Editor editor2 = getSharedPreferences().edit();
+            editor2.putString(CommonsUtils.SHARED_PREF_ADV_FREQUENCY, "0");
+            editor2.commit();
+
+            editor.putString(CommonsUtils.SHARED_PREF_ADV_REDIRECT_URL, "");
+            // editor.commit();
+
+            editor.putString(CommonsUtils.SHARED_PREF_ADV_IMAGE, "");
+            // editor.commit();
+
+            editor.putString(CommonsUtils.SHARED_PREF_ADV_URL, "");
+            // editor.commit();
+
+            editor.putString(CommonsUtils.SHARED_PREF_ADV_SHOW_TIME, "");
+            editor.commit();
+            return;
+        }
+
+        Example.AdvBanner banner = banner1.get(0);
+        // String bannerId = getSharedPreferences().getString(CommonsUtils.SHARED_PREF_ADV_BANNER_ID, "");
+
+        // if (!bannerId.equalsIgnoreCase(banner.getId())) {
+        SharedPreferences.Editor editor = getSharedPreferences().edit();
+        editor.putString(CommonsUtils.SHARED_PREF_ADV_BANNER_ID, banner.getId());
+        editor.commit();
+
+        SharedPreferences.Editor editor2 = getSharedPreferences().edit();
+        editor2.putString(CommonsUtils.SHARED_PREF_ADV_FREQUENCY, banner.getFrequency());
+        editor2.commit();
+
+        editor.putString(CommonsUtils.SHARED_PREF_ADV_REDIRECT_URL, banner.getRedirect_link());
+        // editor.commit();
+
+        editor.putString(CommonsUtils.SHARED_PREF_ADV_IMAGE, banner.getBanner_image());
+        // editor.commit();
+
+        editor.putString(CommonsUtils.SHARED_PREF_ADV_URL, banner.getUrl());
+        // editor.commit();
+
+        editor.putString(CommonsUtils.SHARED_PREF_ADV_SHOW_TIME, banner.getDelay());
+        editor.commit();
+
+        // }
+    }
+
+
 
     public void saveDataInPref(String response) {
         SharedPreferences.Editor editor = getSharedPreferences().edit();
@@ -515,9 +680,9 @@ Log.i("zhao22","onHide");
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        if (!checkLocationPermission()) {
-                            return;
-                        }
+//                        if (!checkLocationPermission()) {
+//                            return;
+//                        }
                         startLocationUpdates();
 
 //                                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
@@ -552,9 +717,9 @@ Log.i("zhao22","onHide");
     }
 
     void startLocationUpdates() {
-        if (!checkLocationPermission()) {
-            return;
-        }
+        //if (!checkLocationPermission()) {
+        //    return;
+        // }
         LocationServices.FusedLocationApi.requestLocationUpdates(
                 mGoogleApiClient,
                 mLocationRequest,
@@ -707,28 +872,26 @@ Log.i("zhao22","onHide");
 //    }
 
     /**
-     *
      * @param actionName
      * @param screenName
      * @param label
      */
-    public static void sendEvent(String actionName,String screenName,String label){
-        try{
+    public static void sendEvent(String actionName, String screenName, String label) {
+        try {
 
             HitBuilders.EventBuilder eventBuilder = new HitBuilders.EventBuilder();
             eventBuilder.setCategory(screenName);
             eventBuilder.setAction(actionName);
-            if (label != null){
+            if (label != null) {
                 eventBuilder.setLabel(label);
             }
 
             mTracker.send(eventBuilder.build());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
-
 
 
     protected void stopLocationUpdates() {
@@ -749,24 +912,24 @@ Log.i("zhao22","onHide");
         }
 
     }
-
+/*
     public boolean checkLocationPermission() {
-//        if (ContextCompat.checkSelfPermission(this,
-//                android.Manifest.permission.ACCESS_FINE_LOCATION)
-//                != PackageManager.PERMISSION_GRANTED &&
-//                ContextCompat.checkSelfPermission(this,
-//                        android.Manifest.permission.ACCESS_COARSE_LOCATION)
-//                        != PackageManager.PERMISSION_GRANTED) {
-//
-//            ActivityCompat.requestPermissions(this,
-//                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
-//                    0);
-//            return false;
-//
-//        }
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this,
+                        android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION},
+                    0);
+            return false;
+
+        }
         return true;
     }
-
+*/
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);

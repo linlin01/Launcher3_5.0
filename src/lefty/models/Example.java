@@ -528,6 +528,15 @@ public class Example {
         @Expose
         private List<Title> titles = new ArrayList<>();
 
+        List<AdvBanner> advbanner;
+
+        public List<AdvBanner> getAdvbanner() {
+            return advbanner;
+        }
+
+        public void setAdvbanner(List<AdvBanner> advbanner) {
+            this.advbanner = advbanner;
+        }
 
         /**
          * @return The video
@@ -1961,6 +1970,75 @@ public class Example {
             this.redirectLink = redirectLink;
         }
 
+    }
+
+    public class AdvBanner {
+
+        String id;
+        String title;
+        String frequency;
+        String banner_image;
+        String url;
+        String redirect_link;
+        String delay;
+
+        public String getDelay() {
+            return delay;
+        }
+
+        public void setDelay(String delay) {
+            this.delay = delay;
+        }
+
+        public String getTitle() {
+
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getFrequency() {
+            return frequency;
+        }
+
+        public void setFrequency(String frequency) {
+            this.frequency = frequency;
+        }
+
+        public String getBanner_image() {
+            return banner_image;
+        }
+
+        public void setBanner_image(String banner_image) {
+            this.banner_image = banner_image;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getRedirect_link() {
+            return redirect_link;
+        }
+
+        public void setRedirect_link(String redirect_link) {
+            this.redirect_link = redirect_link;
+        }
+
+        public String getId() {
+
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
     }
 
 }

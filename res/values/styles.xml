@@ -126,4 +126,15 @@
     <style name="SearchButton.WithPaddingStart">
         <item name="android:paddingLeft">8dp</item>
     </style>
+    <style name="cust_dialog" parent="@android:style/Theme.Dialog">
+        <item name="android:windowTitleStyle">@style/dialog_title_style</item>
+    </style>
+
+    <style name="dialog_title_style" parent="android:Widget.TextView">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:gravity">bottom</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

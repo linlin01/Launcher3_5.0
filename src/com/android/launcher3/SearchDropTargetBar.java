@@ -142,13 +142,14 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
      * Shows and hides the search bar.
      */
     public void showSearchBar(boolean animated) {
+        getLayoutParams().height = LauncherAppState.getInstance().getDynamicGrid().getDeviceProfile().getSearchBarSpaceHeightPx();
         boolean needToCancelOngoingAnimation = mQSBSearchBarAnim.isRunning() && !animated;
         if (!mIsSearchBarHidden && !needToCancelOngoingAnimation) return;
+
         if (animated) {
             prepareStartAnimation(mQSBSearchBar);
             mQSBSearchBarAnim.reverse();
         } else {
-            getLayoutParams().height = LauncherAppState.getInstance().getDynamicGrid().getDeviceProfile().getSearchBarSpaceHeightPx();
             mQSBSearchBarAnim.cancel();
             if (mEnableDropDownDropTargets) {
                 mQSBSearchBar.setTranslationY(0);
@@ -193,6 +194,7 @@ public class SearchDropTargetBar extends FrameLayout implements DragController.D
     @Override
     public void onDragStart(DragSource source, Object info, int dragAction) {
         // Animate out the QSB search bar, and animate in the drop target bar
+        getLayoutParams().height = LauncherAppState.getInstance().getDynamicGrid().getDeviceProfile().getSearchBarSpaceHeightPx();
         prepareStartAnimation(mDropTargetBar);
         mDropTargetBarAnim.start();
         if (!mIsSearchBarHidden) {

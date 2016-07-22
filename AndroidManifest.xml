@@ -61,7 +61,9 @@
     <uses-permission android:name="android.permission.BIND_APPWIDGET" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.READ_MEDIA_STORAGE" />
+    <uses-permission android:name="android.permission.ADVANCED_WIDGET_API"/>
+    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
     <uses-permission android:name="com.android.launcher.permission.WRITE_SETTINGS" />
@@ -98,19 +100,21 @@
         <activity
             android:name="lefty.LeftyActivity"
             android:clearTaskOnLaunch="true"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:enabled="true"
             android:launchMode="singleTask"
+            android:resumeWhilePausing="true"
             android:screenOrientation="nosensor"
             android:stateNotNeeded="true"
+            android:taskAffinity=""
             android:theme="@style/Theme"
-            android:windowSoftInputMode="adjustPan"
-            android:configChanges="mcc|mnc|orientation|screenSize">
+            android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.HOME" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.MONKEY" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.MONKEY"/>
             </intent-filter>
         </activity>
 
@@ -121,7 +125,6 @@
             android:label="@string/toggle_weight_watcher">
             <intent-filter>
 
-                <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

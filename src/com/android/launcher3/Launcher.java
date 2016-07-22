@@ -1060,7 +1060,7 @@ public class Launcher extends Activity
         }
     }
 
-    QSBScroller mQsbScroller = new QSBScroller() {
+    protected QSBScroller mQsbScroller = new QSBScroller() {
         int scrollY = 0;
 
         @Override
@@ -4915,7 +4915,8 @@ Log.w("zhao11folder","v:"+v);
         if (mWorkspace != null) mWorkspace.setAlpha(0f);
         if (mHotseat != null) mHotseat.setAlpha(0f);
         if (mPageIndicators != null) mPageIndicators.setAlpha(0f);
-        if (mSearchDropTargetBar != null) mSearchDropTargetBar.hideSearchBar(false);
+        if (mSearchDropTargetBar != null) {mSearchDropTargetBar.hideSearchBar(false);
+        }
     }
 
     void showWorkspaceAndHotseat() {

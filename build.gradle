@@ -65,8 +65,25 @@ android {
     }
 }
 
+repositories {
+    flatDir{
+        dirs 'libs'
+    }
+}
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile(name: 'answers-1.3.6', ext: 'aar')
+    compile(name: 'beta-1.1.4', ext: 'aar')
+    compile(name: 'crashlytics-2.5.5', ext: 'aar')
+    compile(name: 'crashlytics-core-2.3.8', ext: 'aar')
+    compile(name: 'digits-1.10.0', ext: 'aar')
+    compile(name: 'fabric-1.3.10', ext: 'aar')
+    compile(name: 'tweet-composer-1.0.3', ext: 'aar')
+    compile(name: 'twitter-1.13.0', ext: 'aar')
+    compile(name: 'twitter-core-1.6.5', ext: 'aar')
+    compile(name: 'twitterui', ext: 'aar')
+    compile(name: 'twitter-unity-0.1.0', ext: 'aar')
     compile project(':WallpaperPicker')
+    compile fileTree(dir: 'libs', include: '*.jar')
     compile files('libs/gson-2.3.1.jar')
+
 }

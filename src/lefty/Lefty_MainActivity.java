@@ -164,6 +164,8 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
 
     List<Example.TopAdvertisement> mTopList = new ArrayList<>();
     List<Example.BottomAdvertisement> mBottomList = new ArrayList<>();
+    List<String> mPublisherSelectedList = new ArrayList<>();
+
     AutoScrollViewPager mVideoViewPager;
     AutoScrollViewPager mBanner1ViewPager;
     AutoScrollViewPager mBanner2ViewPager;
@@ -199,7 +201,6 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
         mTracker = LeftyActivity.getDefaultTracker(getActivity());
 
         mImageParams = new LinearLayout.LayoutParams(calculatedWidth, calculatedWidth);
-        
         switch (screenWidth) {
             case 480:
                 width = (getScreenWidth(getActivity()) / 3) + gettingWidth(4, getActivity());
@@ -208,7 +209,6 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
                 width = getScreenWidth(getActivity()) / 3 - gettingWidth(5, getActivity());
                 break;
         }
-
     }
 
 
@@ -290,7 +290,7 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
         settingTrendingGameView();
         setUpTOI();
         setUpBanner1Adapter();
-
+        setTitles();
     }
 
     ImageView mSplashImageView;
@@ -890,6 +890,7 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             mImageView[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    hitGA(mTrendingAppList.get(v.getId()).getRedirectLink(), CommonsUtils.TRENDING_APPS_EVENT_NAME);
                     openBrowser(mTrendingAppList.get(v.getId()).getRedirectLink());
                 }
             });
@@ -943,6 +944,7 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             mImageView[i].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    hitGA(mTrendingGameList.get(v.getId()).getRedirectLink(), CommonsUtils.TRENDING_GAMES_EVENT_NAME);
                     openBrowser(mTrendingGameList.get(v.getId()).getRedirectLink());
                 }
             });
@@ -1037,7 +1039,20 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
                     ImageView imageview = (ImageView) newsLayout.findViewById(R.id.news_image);
 
                     titleTextView.setText(newsList.get(i).getHeading());
-                    contentTextView.setText(newsList.get(i).getDescription());
+                    if (!TextUtils.isEmpty(newsList.get(i).getDescription())) {
+                        contentTextView.setVisibility(View.VISIBLE);
+                        contentTextView.setText(newsList.get(i).getDescription());
+                    } else {
+                        contentTextView.setVisibility(View.GONE);
+                    }
+
+                    if (!TextUtils.isEmpty(newsList.get(i).getDatetime())) {
+                        timeTextView.setVisibility(View.VISIBLE);
+                        timeTextView.setText(newsList.get(i).getDatetime());
+                    } else {
+                        timeTextView.setVisibility(View.GONE);
+                    }
+
                     timeTextView.setText(newsList.get(i).getDatetime());
                     ImageLoader.getInstance().displayImage(newsList.get(i).getImage(), imageview, new DisplayImageOptions.Builder()
                             .cacheOnDisk(false)
@@ -1058,7 +1073,7 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
                         }
                     });
                     mTOILayout.addView(newsLayout);
-                    if (i == 0) {
+                    if (i < newsList.size() - 1) {
                         View v = new View(getActivity());
                         v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 5));
                         v.setBackgroundResource(R.drawable.lefty_shade_drawable);
@@ -1133,6 +1148,7 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
                 break;
 
             case R.id.linear1:
+                mPublisherSelectedList = new ArrayList<>();
                 showDialogForPublisher();
                 break;
 
@@ -1563,11 +1579,12 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
 
                             }
                             mSelectedLang = mBuilder.toString();
-                            if (mLanguagesList.size() > 3) {
+                            mLanguageTextView.setText(mLanguagesList.size() + " Language(s) Selected");
+                            /*if (mLanguagesList.size() > 3) {
                                 mLanguageTextView.setText(mLanguagesList.size() + " Language(s) Selected");
                             } else {
                                 mLanguageTextView.setText(TextUtils.join(",", mLanguagesList));
-                            }
+                            }*/
                             mNext.setBackground(getResources().getDrawable(R.drawable.lefty_next_bg_active));
                             dialog.dismiss();
                         } else {
@@ -1636,7 +1653,7 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
 
     private void showDialogForPublisher() {
 
-        final Dialog dialog = new Dialog(getActivity());
+        final Dialog dialog = new Dialog(getActivity(), R.style.cust_dialog);
         dialog.setContentView(R.layout.lefty_publisher_list_dialog);
 
         ListView mPublisherListView = (ListView) dialog.findViewById(R.id.publisher_list);
@@ -1654,6 +1671,12 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+
+//                if (mPublisherPojoList != null && mPublisherPojoList.size() > 0) {
+//                    for (int i = 0; i < mPublisherPojoList.size(); i++) {
+//                        mPublisherPojoList.get(i).setIsSelected(false);
+//                    }
+//                }
             }
         });
 
@@ -1662,17 +1685,19 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             public void onClick(View v) {
                 dialog.dismiss();
 
+
                 mPublisherList = settingDataInPublisherList();
                 if (mPublisherList == null) {
                     return;
                 }
 
                 if (mPublisherList.size() > 0) {
-                    if (mPublisherList.size() > 3) {
+                    mPublisher.setText(mPublisherList.size() + " Publisher(s) Selected");
+                    /*if (mPublisherList.size() > 3) {
                         mPublisher.setText(mPublisherList.size() + " Publisher(s) Selected");
                     } else {
                         mPublisher.setText(TextUtils.join(",", mPublisherList));
-                    }
+                    }*/
                     mProceed.setBackground(getResources().getDrawable(R.drawable.lefty_next_bg_active));
                 } else {
                     mPublisher.setText("");
@@ -1798,8 +1823,6 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
                 convertView = getActivity().getLayoutInflater().inflate(R.layout.lefty_publisher_list_raw, null);
                 holder.mPublisherCheckBox = (CheckBox) convertView.findViewById(R.id.publisher_checkbox);
                 holder.mPublisherHeader = (TextView) convertView.findViewById(R.id.publisher_header);
-                holder.mPublisherLayout = (LinearLayout) convertView.findViewById(R.id.footerlayout);
-                holder.mPublisherText = (TextView) convertView.findViewById(R.id.publisher_txt);
                 convertView.setTag(holder);
 
             }
@@ -1818,13 +1841,13 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             if (mPublisherPojoList.get(position).isHeader()) {
                 holder.mPublisherHeader.setText(mPublisherPojoList.get(position).getHeader());
                 holder.mPublisherHeader.setVisibility(View.VISIBLE);
-                holder.mPublisherLayout.setVisibility(View.GONE);
+                holder.mPublisherCheckBox.setVisibility(View.GONE);
 
             } else {
-                holder.mPublisherText.setText(mPublisherPojoList.get(position).getPublisher());
+                holder.mPublisherCheckBox.setText(mPublisherPojoList.get(position).getPublisher());
                 holder.mPublisherCheckBox.setChecked(mPublisherPojoList.get(position).isSelected());
                 holder.mPublisherHeader.setVisibility(View.GONE);
-                holder.mPublisherLayout.setVisibility(View.VISIBLE);
+                holder.mPublisherCheckBox.setVisibility(View.VISIBLE);
             }
 
             return convertView;
@@ -1835,8 +1858,6 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
         public class ViewHolder {
             TextView mPublisherHeader;
             CheckBox mPublisherCheckBox;
-            TextView mPublisherText;
-            LinearLayout mPublisherLayout;
         }
     }
 
@@ -1844,41 +1865,6 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
     List<WallpapersPojo> mWallpapersList = new ArrayList<>();
 
 
-//    public class WallPaperAdapter extends PagerAdapter {
-//
-//
-//        @Override
-//        public void destroyItem(ViewGroup container, int position, Object object) {
-//            container.removeView((View) object);
-//        }
-//
-//        @Override
-//        public int getCount() {
-//            return 3;
-//        }
-//
-//        @Override
-//        public Object instantiateItem(ViewGroup view, int position) {
-//            View imageLayout = getActivity().getLayoutInflater().inflate(R.layout.lefty_wallpaper_row, view, false);
-//            view.addView(imageLayout, 0);
-//            return imageLayout;
-//        }
-//
-//        @Override
-//        public boolean isViewFromObject(View view, Object object) {
-//            return view.equals(object);
-//        }
-//
-//        @Override
-//        public void restoreState(Parcelable state, ClassLoader loader) {
-//        }
-//
-//        @Override
-//        public Parcelable saveState() {
-//            return null;
-//        }
-//
-//    }
 
     public static int getScreenWidth(Activity context) {
 
@@ -2185,57 +2171,57 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
     TimelineResult<Tweet> mFourTweetsTimeline;
 
     private void twittes() {
-//
-//        if (mTwiterList == null || mTwiterList.size() == 0) {
-//            return;
-//        }
-////        CollectionTimeline timeline = new CollectionTimeline.Builder().id(743439345550524416L).maxItemsPerRequest(2).build();
-//        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(0).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(0).getTweet_count())).build();
-//        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
-//            @Override
-//            public void success(Result<TimelineResult<Tweet>> result) {
-//                mTwoTweetsTimeline = result.data;
-//                if (mTwoTweetsTimeline != null) {
-//                    List<Tweet> tweet = mTwoTweetsTimeline.items;
-//                    loadTweets(tweet);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void failure(TwitterException exception) {
-//                Log.e("twitter", "failure" + exception.getMessage());
-//            }
-//        });
-//
+
+        if (mTwiterList == null || mTwiterList.size() == 0) {
+            return;
+        }
+//        CollectionTimeline timeline = new CollectionTimeline.Builder().id(743439345550524416L).maxItemsPerRequest(2).build();
+        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(0).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(0).getTweet_count())).build();
+        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
+            @Override
+            public void success(Result<TimelineResult<Tweet>> result) {
+                mTwoTweetsTimeline = result.data;
+                if (mTwoTweetsTimeline != null) {
+                    List<Tweet> tweet = mTwoTweetsTimeline.items;
+                    loadTweets(tweet);
+                }
+
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Log.e("twitter", "failure" + exception.getMessage());
+            }
+        });
+
 
     }
 
     private void twittesTrending() {
-//
-//        if (mTwiterList == null || mTwiterList.size() <= 1) {
-//            return;
-//        }
-//        //CollectionTimeline timeline = new CollectionTimeline.Builder().id(743422922220519430L).maxItemsPerRequest(4).build();
-//        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(1).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(1).getTweet_count())).build();
-//
-//        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
-//            @Override
-//            public void success(Result<TimelineResult<Tweet>> result) {
-//
-//                mFourTweetsTimeline = result.data;
-//                if (mFourTweetsTimeline != null) {
-//                    List<Tweet> tweet = mFourTweetsTimeline.items;
-//                    loadTrendingTweets(tweet);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void failure(TwitterException exception) {
-//                Log.e("twitter", "failure" + exception.getMessage());
-//            }
-//        });
+
+        if (mTwiterList == null || mTwiterList.size() <= 1) {
+            return;
+        }
+        //CollectionTimeline timeline = new CollectionTimeline.Builder().id(743422922220519430L).maxItemsPerRequest(4).build();
+        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(1).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(1).getTweet_count())).build();
+
+        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
+            @Override
+            public void success(Result<TimelineResult<Tweet>> result) {
+
+                mFourTweetsTimeline = result.data;
+                if (mFourTweetsTimeline != null) {
+                    List<Tweet> tweet = mFourTweetsTimeline.items;
+                    loadTrendingTweets(tweet);
+                }
+
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Log.e("twitter", "failure" + exception.getMessage());
+            }
+        });
 
 
     }
@@ -2260,36 +2246,36 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             ids.add(tweet.get(i).getId());
         }
 
-//
-//        TweetUtils.loadTweets(ids, new Callback<List<Tweet>>() {
-//            @Override
-//            public void success(Result<List<Tweet>> result) {
-//                if (mTweetContainer != null) mTweetContainer.removeAllViews();
-//                for (Tweet tweet : result.data) {
-//                    try {
-//                        count = count + 1;
-//
-//                        CompactTweetView mTweetView = new CompactTweetView(getActivity(), tweet);
-//                        if (mTweetContainer != null) mTweetContainer.addView(mTweetView);
-//                        if (count == 1) {
-//                            View v = new View(getActivity());
-//                            v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 5));
-//                            v.setBackgroundResource(R.drawable.lefty_shade_drawable);
-//                            if (mTweetContainer != null) mTweetContainer.addView(v);
-//                        }
-//                    } catch (Exception e) {
-//
-//                    }
-//
-//                }
-//            }
-//
-//            @Override
-//            public void failure(TwitterException exception) {
-//
-//            }
-//        });
 
+        TweetUtils.loadTweets(ids, new Callback<List<Tweet>>() {
+            @Override
+            public void success(Result<List<Tweet>> result) {
+                if (mTweetContainer != null) mTweetContainer.removeAllViews();
+                for (Tweet tweet : result.data) {
+                    try {
+                        count = count + 1;
+
+                        CompactTweetView mTweetView = new CompactTweetView(getActivity(), tweet);
+                        if (mTweetContainer != null) mTweetContainer.addView(mTweetView);
+                        if (count == 1) {
+                            View v = new View(getActivity());
+                            v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 5));
+                            v.setBackgroundResource(R.drawable.lefty_shade_drawable);
+                            if (mTweetContainer != null) mTweetContainer.addView(v);
+                        }
+                    } catch (Exception e) {
+
+                    }
+
+                }
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+
+            }
+        });
+//
     }
 
 
@@ -2308,35 +2294,35 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             ids.add(tweet.get(i).getId());
         }
 
-//
-//        TweetUtils.loadTweets(ids, new Callback<List<Tweet>>() {
-//            @Override
-//            public void success(Result<List<Tweet>> result) {
-//                twiter_trending_news_layout.removeAllViews();
-//                for (Tweet tweet : result.data) {
-//                    //trendingCount = trendingCount + 1;
-//
-//                    CompactTweetView mTweetView = new CompactTweetView(getActivity(), tweet);
-//
-////                    final BaseTweetView tv = new TweetView(getActivity(), tweet, R.style.tw__TweetLightWithActionsStyle);
-////                    tv.setOnActionCallback(null);
-////                    tv.setId(tv.getId());
-//
-//                    twiter_trending_news_layout.addView(mTweetView);
-//                    //if (trendingCount == 1 || trendingCount == 3) {
-//                    View v = new View(getActivity());
-//                    v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 5));
-//                    v.setBackgroundResource(R.drawable.lefty_shade_drawable);
-//                    twiter_trending_news_layout.addView(v);
-//                    //}
-//                }
-//            }
-//
-//            @Override
-//            public void failure(TwitterException exception) {
-//
-//            }
-//        });
+
+        TweetUtils.loadTweets(ids, new Callback<List<Tweet>>() {
+            @Override
+            public void success(Result<List<Tweet>> result) {
+                twiter_trending_news_layout.removeAllViews();
+                for (Tweet tweet : result.data) {
+                    //trendingCount = trendingCount + 1;
+
+                    CompactTweetView mTweetView = new CompactTweetView(getActivity(), tweet);
+
+//                    final BaseTweetView tv = new TweetView(getActivity(), tweet, R.style.tw__TweetLightWithActionsStyle);
+//                    tv.setOnActionCallback(null);
+//                    tv.setId(tv.getId());
+
+                    twiter_trending_news_layout.addView(mTweetView);
+                    //if (trendingCount == 1 || trendingCount == 3) {
+                    View v = new View(getActivity());
+                    v.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 5));
+                    v.setBackgroundResource(R.drawable.lefty_shade_drawable);
+                    twiter_trending_news_layout.addView(v);
+                    //}
+                }
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+
+            }
+        });
 //
     }
 
@@ -2441,6 +2427,7 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
         @Override
         public boolean onSingleTapUp(MotionEvent e) {
             //Toast.makeText(getActivity(), "clicked " + mVideoViewPager.getCurrentItem(), Toast.LENGTH_SHORT).show();
+            hitGA(mEntertainmentList.get(mEntertainmentViewpager.getCurrentItem()).getRedirectLink(), CommonsUtils.ENTERTAINMENT_EVENT_NAME);
             openBrowser(mEntertainmentList.get(mEntertainmentViewpager.getCurrentItem()).getRedirectLink());
             return super.onSingleTapUp(e);
         }

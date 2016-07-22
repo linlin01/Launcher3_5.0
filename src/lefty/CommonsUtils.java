@@ -96,14 +96,27 @@ public class CommonsUtils {
     public static final String YAHOO_EVENT_NAME = "YahooSearch";
 
 
-    public static final String SHARED_PREF_NAME = "Lefty";
+//    public static final String SHARED_PREF_NAME = "Lefty";
+//    public static final String SHARED_PREF_TOKEN_KEY = "token";
+//    public static final String SHARED_PREF_VERSION_KEY = "version";
+//    public static final String SHARED_PREF_ADDRESS_KEY = "address";
+//    public static final String SHARED_PREF_LANGUAGE_KEY = "version";
+//    public static final String SHARED_PREF_API_RESPONSE_KEY = "response";
+//    public static final String SHARED_PREF_APP_TYPE_KEY = "app_type";
+public static final String SHARED_PREF_NAME = "Lefty";
     public static final String SHARED_PREF_TOKEN_KEY = "token";
     public static final String SHARED_PREF_VERSION_KEY = "version";
     public static final String SHARED_PREF_ADDRESS_KEY = "address";
     public static final String SHARED_PREF_LANGUAGE_KEY = "version";
     public static final String SHARED_PREF_API_RESPONSE_KEY = "response";
     public static final String SHARED_PREF_APP_TYPE_KEY = "app_type";
-
+    public static final String SHARED_PREF_NO_OF_SWIPE = "swipe_num";
+    public static final String SHARED_PREF_ADV_BANNER_ID = "adv_banner_id";
+    public static final String SHARED_PREF_ADV_FREQUENCY = "adv_frequency";
+    public static final String SHARED_PREF_ADV_IMAGE="adv_image";
+    public static final String SHARED_PREF_ADV_REDIRECT_URL="adv_redirection_url";
+    public static final String SHARED_PREF_ADV_URL="adv_url";
+    public static final String SHARED_PREF_ADV_SHOW_TIME="adv_show_time";
 
     public static String getLocationAddress(Context context, double latitude, double longitude) {
 

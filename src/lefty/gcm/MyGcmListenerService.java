@@ -25,16 +25,30 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import android.text.TextUtils;
 
 import com.android.launcher3.R;
 import com.google.android.gms.gcm.GcmListenerService;
 
-public class MyGcmListenerService extends GcmListenerService {
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
+public class MyGcmListenerService extends GcmListenerService {
     private static final String TAG = "MyGcmListenerService";
+    String message = "";
+    String title = "";
+    String url = "";
+    String banner = "";
+    String tag = "";
+    String icon = "";
 
     /**
      * Called when message is received.
@@ -49,36 +63,46 @@ public class MyGcmListenerService extends GcmListenerService {
         /**
          * {title=Tajinder, message=Singh, collapse_key=do_not_collapse}
          */
-        String message = "";
-        String title = "";
-        String url = "";
-        try{
+
+        try {
             message = data.getString("message");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        try{
+        try {
             title = data.getString("title");
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        try{
+        try {
             url = data.getString("url");
-        }catch (Exception e){
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            banner = data.getString("banner");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            tag = data.getString("tag");
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Message: " + message);
-
+        try {
+            icon = data.getString("icon");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
         /**
-         * In some cases it may be useful to show a notification indicating to the user
-         * that a message was received.
+         * Async task to download icon and banner for notification
          */
-        sendNotification(title,message,url);
+        new GeneratePictureStyleNotification().execute(icon, banner);
+
         // [END_EXCLUDE]
     }
     // [END receive_message]
@@ -88,44 +112,126 @@ public class MyGcmListenerService extends GcmListenerService {
      *
      * @param message GCM message received.
      */
-    private void sendNotification(String title,String message,String url) {
-        /*Intent intent = new Intent(this, LeftyActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);*/
+    private void sendNotification(String title, String message, String url, List<Bitmap> result) {
         Uri mUri = null;
-        try{
+        try {
             mUri = Uri.parse(url);
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
 
 
         Intent intent = new Intent(Intent.ACTION_VIEW, mUri);
-        //startActivity(intent);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
-        int icon = R.mipmap.noti_icon;
-        Bitmap mIcon = BitmapFactory.decodeResource(getResources(),R.mipmap.intex_icon);
+        int icon1 = R.mipmap.noti_icon;
+        Bitmap mIconBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.intex_icon);
+        if (TextUtils.isEmpty(icon)) {
+            mIconBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.intex_icon);
+        } else {
+            if (result != null && result.size() > 0) {
+                mIconBitmap = result.get(0);
+                if(mIconBitmap==null){
+                    mIconBitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.intex_icon);
+                }
+            }
+        }
+
+        Bitmap mBannerBitmap = null;
+        if (TextUtils.isEmpty(banner)) {
+            mBannerBitmap = null;
+        } else {
+            if (result != null && result.size() > 0) {
+                mBannerBitmap = result.get(1);
+            }
+        }
+
+
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(icon)
-                .setLargeIcon(mIcon)
+                .setSmallIcon(icon1)
+                .setLargeIcon(mIconBitmap)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(message))
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
-                .setColor(Color.parseColor("#00ffffff"))
+                .setColor(Color.parseColor("#8f0002"))
                 .setContentIntent(pendingIntent);
+
+        if (mBannerBitmap != null) {
+            notificationBuilder.setStyle(new NotificationCompat.BigPictureStyle().bigPicture(mBannerBitmap).setSummaryText(message));
+        }
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
+
     void openBrowser(String url) {
         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         startActivity(browserIntent);
+    }
+
+
+    /**
+     * this task will get bitmap of banner and icon
+     */
+    public class GeneratePictureStyleNotification extends AsyncTask<String, Void, List<Bitmap>> {
+
+
+        @Override
+        protected List<Bitmap> doInBackground(String... params) {
+
+            List<Bitmap> bitmaps = new ArrayList<>();
+
+            String icon = params[0];
+            String banner = params[1];
+
+            InputStream in;
+            URL url;
+            HttpURLConnection connection;
+            try {
+                url = new URL(icon);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                connection.connect();
+                in = connection.getInputStream();
+                bitmaps.add(BitmapFactory.decodeStream(in));
+                in.close();
+                connection.disconnect();
+            } catch (MalformedURLException e) {
+                bitmaps.add(null);
+                e.printStackTrace();
+            } catch (IOException e) {
+                bitmaps.add(null);
+                e.printStackTrace();
+            }
+            try {
+                url = new URL(banner);
+                connection = (HttpURLConnection) url.openConnection();
+                connection.setDoInput(true);
+                in = connection.getInputStream();
+                bitmaps.add(BitmapFactory.decodeStream(in));
+                in.close();
+                connection.disconnect();
+
+            } catch (MalformedURLException e) {
+                bitmaps.add(null);
+                e.printStackTrace();
+            } catch (IOException e) {
+                bitmaps.add(null);
+                e.printStackTrace();
+            }
+            return bitmaps;
+        }
+
+        @Override
+        protected void onPostExecute(List<Bitmap> result) {
+            super.onPostExecute(result);
+            sendNotification(title, message, url, result);
+        }
     }
 }

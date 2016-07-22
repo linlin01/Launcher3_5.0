@@ -62,7 +62,7 @@ class IcsLinearLayout extends LinearLayout {
         final int index = indexOfChild(child);
         final int orientation = getOrientation();
         final LayoutParams params = (LayoutParams) child.getLayoutParams();
-        if (hasDividerBeforeChildAt(index)) {
+        if (hasDividerBeforeChildAt1(index)) {
             if (orientation == VERTICAL) {
                 //Account for the divider by pushing everything up
                 params.topMargin = mDividerHeight;
@@ -74,7 +74,7 @@ class IcsLinearLayout extends LinearLayout {
 
         final int count = getChildCount();
         if (index == count - 1) {
-            if (hasDividerBeforeChildAt(count)) {
+            if (hasDividerBeforeChildAt1(count)) {
                 if (orientation == VERTICAL) {
                     params.bottomMargin = mDividerHeight;
                 } else {
@@ -103,7 +103,7 @@ class IcsLinearLayout extends LinearLayout {
             final View child = getChildAt(i);
 
             if (child != null && child.getVisibility() != GONE) {
-                if (hasDividerBeforeChildAt(i)) {
+                if (hasDividerBeforeChildAt1(i)) {
                     final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                     final int top = child.getTop() - lp.topMargin/* - mDividerHeight*/;
                     drawHorizontalDivider(canvas, top);
@@ -111,7 +111,7 @@ class IcsLinearLayout extends LinearLayout {
             }
         }
 
-        if (hasDividerBeforeChildAt(count)) {
+        if (hasDividerBeforeChildAt1(count)) {
             final View child = getChildAt(count - 1);
             int bottom = 0;
             if (child == null) {
@@ -130,7 +130,7 @@ class IcsLinearLayout extends LinearLayout {
             final View child = getChildAt(i);
 
             if (child != null && child.getVisibility() != GONE) {
-                if (hasDividerBeforeChildAt(i)) {
+                if (hasDividerBeforeChildAt1(i)) {
                     final LayoutParams lp = (LayoutParams) child.getLayoutParams();
                     final int left = child.getLeft() - lp.leftMargin/* - mDividerWidth*/;
                     drawVerticalDivider(canvas, left);
@@ -138,7 +138,7 @@ class IcsLinearLayout extends LinearLayout {
             }
         }
 
-        if (hasDividerBeforeChildAt(count)) {
+        if (hasDividerBeforeChildAt1(count)) {
             final View child = getChildAt(count - 1);
             int right = 0;
             if (child == null) {
@@ -163,7 +163,7 @@ class IcsLinearLayout extends LinearLayout {
         mDivider.draw(canvas);
     }
 
-    private boolean hasDividerBeforeChildAt(int childIndex) {
+    private boolean hasDividerBeforeChildAt1(int childIndex) {
         if (childIndex == 0 || childIndex == getChildCount()) {
           return false;
         }
