@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.launcher3.LauncherApplication;
 import com.crashlytics.android.Crashlytics;
 import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
@@ -18,7 +19,7 @@ import io.fabric.sdk.android.Fabric;
 /**
  * Created by tajinder on 25/6/16.
  */
-public class LeftyApplication extends Application {
+public class LeftyApplication extends LauncherApplication {
 
 
     static LeftyActivity mCActivity;

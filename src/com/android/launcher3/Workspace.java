@@ -1253,6 +1253,7 @@ public class Workspace extends SmoothPagedView
 
     @Override
     protected void notifyPageSwitchListener() {
+        Log.i("zhao11lefty","notifyPageSwitchListener");
         super.notifyPageSwitchListener();
         Launcher.setScreen(getNextPage());
 

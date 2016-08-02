@@ -276,10 +276,10 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
         }
         if (CommonsUtils.isConnectedToInternet(getActivity())) {
 
-            if (mActivity != null && mActivity.isOnCustomContent()) {
-                twittes();
-                twittesTrending();
-            }
+//            if (mActivity != null && mActivity.isOnCustomContent()) {
+//                twittes();
+//                twittesTrending();
+//            }
 
 
         }
@@ -2176,23 +2176,23 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             return;
         }
 //        CollectionTimeline timeline = new CollectionTimeline.Builder().id(743439345550524416L).maxItemsPerRequest(2).build();
-        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(0).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(0).getTweet_count())).build();
-        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
-            @Override
-            public void success(Result<TimelineResult<Tweet>> result) {
-                mTwoTweetsTimeline = result.data;
-                if (mTwoTweetsTimeline != null) {
-                    List<Tweet> tweet = mTwoTweetsTimeline.items;
-                    loadTweets(tweet);
-                }
-
-            }
-
-            @Override
-            public void failure(TwitterException exception) {
-                Log.e("twitter", "failure" + exception.getMessage());
-            }
-        });
+//        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(0).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(0).getTweet_count())).build();
+//        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
+//            @Override
+//            public void success(Result<TimelineResult<Tweet>> result) {
+//                mTwoTweetsTimeline = result.data;
+//                if (mTwoTweetsTimeline != null) {
+//                    List<Tweet> tweet = mTwoTweetsTimeline.items;
+//                    loadTweets(tweet);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void failure(TwitterException exception) {
+//                Log.e("twitter", "failure" + exception.getMessage());
+//            }
+//        });
 
 
     }
@@ -2203,25 +2203,25 @@ public class Lefty_MainActivity extends Fragment implements View.OnClickListener
             return;
         }
         //CollectionTimeline timeline = new CollectionTimeline.Builder().id(743422922220519430L).maxItemsPerRequest(4).build();
-        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(1).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(1).getTweet_count())).build();
-
-        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
-            @Override
-            public void success(Result<TimelineResult<Tweet>> result) {
-
-                mFourTweetsTimeline = result.data;
-                if (mFourTweetsTimeline != null) {
-                    List<Tweet> tweet = mFourTweetsTimeline.items;
-                    loadTrendingTweets(tweet);
-                }
-
-            }
-
-            @Override
-            public void failure(TwitterException exception) {
-                Log.e("twitter", "failure" + exception.getMessage());
-            }
-        });
+//        CollectionTimeline timeline = new CollectionTimeline.Builder().id(Long.parseLong(mTwiterList.get(1).getCollectionId())).maxItemsPerRequest(Integer.parseInt(mTwiterList.get(1).getTweet_count())).build();
+//
+//        timeline.next(null, new Callback<TimelineResult<Tweet>>() {
+//            @Override
+//            public void success(Result<TimelineResult<Tweet>> result) {
+//
+//                mFourTweetsTimeline = result.data;
+//                if (mFourTweetsTimeline != null) {
+//                    List<Tweet> tweet = mFourTweetsTimeline.items;
+//                    loadTrendingTweets(tweet);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void failure(TwitterException exception) {
+//                Log.e("twitter", "failure" + exception.getMessage());
+//            }
+//        });
 
 
     }
