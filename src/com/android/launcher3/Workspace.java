@@ -71,7 +71,11 @@ import com.android.launcher3.LauncherSettings.Favorites;
 import com.android.launcher3.compat.PackageInstallerCompat;
 import com.android.launcher3.compat.PackageInstallerCompat.PackageInstallInfo;
 import com.android.launcher3.compat.UserHandleCompat;
-
+import com.android.launcher3.preview.RGKMultiTouchController;
+import com.android.launcher3.preview.RGKMultiTouchController.MultiTouchObjectCanvas;
+import com.android.launcher3.preview.RGKMultiTouchController.PointInfo;
+import com.android.launcher3.preview.RGKMultiTouchController.PositionAndScale;
+import com.android.launcher3.preview.RGKPreference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,7 +92,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Workspace extends SmoothPagedView
         implements DropTarget, DragSource, DragScroller, View.OnTouchListener,
         DragController.DragListener, LauncherTransitionable, ViewGroup.OnHierarchyChangeListener,
-        Insettable {
+        Insettable, MultiTouchObjectCanvas<Object> {
     private static final String TAG = "Launcher.Workspace";
 
     // Y rotation to apply to the workspace screens
@@ -289,6 +293,12 @@ public class Workspace extends SmoothPagedView
     private boolean mDeferDropAfterUninstall;
     private boolean mUninstallSuccessful;
 
+    // Add by sunjie for Home Screen Edit Feature @{
+    private RGKMultiTouchController<Object> multiTouchController;
+    private static final double ZOOM_SENSITIVITY = 1.6;
+    private static final double ZOOM_LOG_BASE_INV = 1.0 / Math.log(2.0 / ZOOM_SENSITIVITY);
+    private static boolean isMultiTouch = false;
+    // }@
     private final Runnable mBindPages = new Runnable() {
         @Override
         public void run() {
@@ -339,6 +349,11 @@ public class Workspace extends SmoothPagedView
         mOverviewModeShrinkFactor = grid.getOverviewModeScale();
         mCameraDistance = res.getInteger(R.integer.config_cameraDistance);
         mOriginalDefaultPage = mDefaultPage = a.getInt(R.styleable.Workspace_defaultScreen, 1);
+        // Add by sunjie for Home Screen Edit Feature @{
+        if (LauncherAppState.isSupportHomeScreenEdit()) {
+            mOriginalDefaultPage = mDefaultPage = mLauncher.getSharedPrefs().getInt(RGKPreference.KEY_DEFAULT_SCREEN, mOriginalDefaultPage);
+        }
+        // }@
         a.recycle();
 
         setOnHierarchyChangeListener(this);
@@ -462,6 +477,9 @@ public class Workspace extends SmoothPagedView
 
         // Set the wallpaper dimensions when Launcher starts up
         setWallpaperDimension();
+        // Add by sunjie for Home Screen Edit Feature @{
+        multiTouchController = new RGKMultiTouchController<Object>(this, false);
+        // }@
     }
 
     private void setupLayoutTransition() {
@@ -706,6 +724,11 @@ public class Workspace extends SmoothPagedView
     }
 
     private void convertFinalScreenToEmptyScreenIfNecessary() {
+        // Add by sunjie for Home Screen Edit Feature @{
+        if (LauncherAppState.isSupportHomeScreenEdit()) {
+            return;
+        }
+        // }@
         // Log to disk
         Launcher.addDumpLog(TAG, "11683562 - convertFinalScreenToEmptyScreenIfNecessary()", true);
 
@@ -834,7 +857,7 @@ public class Workspace extends SmoothPagedView
     public long commitExtraEmptyScreen() {
         // Log to disk
         Launcher.addDumpLog(TAG, "11683562 - commitExtraEmptyScreen()", true);
-        if (mLauncher.isWorkspaceLoading()) {
+        if (mLauncher.isWorkspaceLoading() && !mLauncher.isWorkspacePreviewMode()) {// Modify by sunjie for Home Screen Edit Feature
             // Invalid and dangerous operation if workspace is loading
             Launcher.addDumpLog(TAG, "    - workspace loading, skip", true);
             return -1;
@@ -892,6 +915,11 @@ public class Workspace extends SmoothPagedView
     }
 
     public void stripEmptyScreens() {
+        // Add by sunjie for Home Screen Edit Feature @{
+        if (LauncherAppState.isSupportHomeScreenEdit()) {
+            return;
+        }
+        // }@
         // Log to disk
         Launcher.addDumpLog(TAG, "11683562 - stripEmptyScreens()", true);
 
@@ -1097,6 +1125,13 @@ public class Workspace extends SmoothPagedView
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
+        // Add by sunjie for Home Screen Edit Feature @{
+        if (LauncherAppState.isSupportHomeScreenEdit()) {
+            if (multiTouchController.onTouchEvent(ev)) {
+                return false;
+            }
+        }
+        // }@
         switch (ev.getAction() & MotionEvent.ACTION_MASK) {
         case MotionEvent.ACTION_DOWN:
             mXDown = ev.getX();
@@ -1105,6 +1140,12 @@ public class Workspace extends SmoothPagedView
             break;
         case MotionEvent.ACTION_POINTER_UP:
         case MotionEvent.ACTION_UP:
+            // Add by sunjie for Home Screen Edit Feature @{
+            if (isMultiTouch) {
+                isMultiTouch = false;
+                return true;
+            }
+            // }@
             if (mTouchState == TOUCH_STATE_REST) {
                 final CellLayout currentPage = (CellLayout) getChildAt(mCurrentPage);
                 if (currentPage != null && !currentPage.lastDownOnOccupiedCell()) {
@@ -5156,4 +5197,54 @@ public class Workspace extends SmoothPagedView
             }
         }
     }
+
+    // Add by sunjie for Home Screen Edit Feature @{
+    public void setDefaultScreen(int screen) {
+        mDefaultPage = screen;
+    }
+
+    public int getDefaultScreen() {
+        return mDefaultPage;
+    }
+
+    public void deleteWorkspaceScreen(int deleteIndex) {
+        if (getChildAt(deleteIndex) == null) {
+            return;
+        }
+
+        removeViewAt(deleteIndex);
+        LauncherAppState.getLauncherProvider().deleteScreen(deleteIndex);
+        long id = mScreenOrder.get(deleteIndex);
+        mScreenOrder.remove(deleteIndex);
+        mWorkspaceScreens.remove(id);
+        getPageIndicator().removeMarker(deleteIndex, true);
+    }
+
+    @Override
+    public Object getDraggableObjectAtPoint(PointInfo pt) {
+        return this;
+    }
+
+    @Override
+    public void getPositionAndScale(Object obj, PositionAndScale objPosAndScaleOut) {
+        objPosAndScaleOut.set(0.0f, 0.0f, true, 1.0f, false, 0.0f, 0.0f, false, 0.0f);
+    }
+
+    @Override
+    public void selectObject(Object obj, PointInfo pt) {
+    }
+
+    @Override
+    public boolean setPositionAndScale(Object obj, PositionAndScale update, PointInfo touchPoint) {
+        float newRelativeScale = update.getScale();
+        int targetZoom = (int) Math.round(Math.log(newRelativeScale) * ZOOM_LOG_BASE_INV);
+        if (targetZoom < 0 && mState == State.NORMAL) {
+            isMultiTouch = true;
+            mLauncher.showPreviews();
+            invalidate();
+            return true;
+        }
+        return false;
+    }
+    // }@
 }

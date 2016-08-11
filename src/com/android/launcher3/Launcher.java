@@ -90,12 +90,15 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Advanceable;
+import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -127,6 +130,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import com.android.launcher3.preview.RGKDragGridView;
+import com.android.launcher3.preview.RGKPreference;
+import com.android.launcher3.preview.RGKPreviewConfigure;
+import com.android.launcher3.preview.RGKPreviewItemInfo;
+import com.android.launcher3.preview.RGKWorkspacePreviewScrollLayout;
+import android.view.animation.Animation;
 
 /**
  * Default launcher application.
@@ -224,10 +234,14 @@ public class Launcher extends Activity
 
     public static final String USER_HAS_MIGRATED = "launcher.user_migrated_from_old_data";
 
-    /** The different states that Launcher can be in. */
+    /**
+     * The different states that Launcher can be in.
+     */
     private enum State {
-        NONE, WORKSPACE, APPS_CUSTOMIZE, APPS_CUSTOMIZE_SPRING_LOADED
-    };
+        NONE, WORKSPACE, APPS_CUSTOMIZE, APPS_CUSTOMIZE_SPRING_LOADED, WORKSPACE_PREVIEW // Modify by sunjie for Home Screen Edit Feature
+    }
+
+    ;
 
     private State mState = State.WORKSPACE;
     private AnimatorSet mStateAnimation;
@@ -394,7 +408,7 @@ public class Launcher extends Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.i("zhao11","launcher oncreate");
+        Log.i("zhao11", "launcher oncreate");
         if (DEBUG_STRICT_MODE) {
             StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites()
                     .detectNetwork() // or .detectAll() for all detectable problems
@@ -502,9 +516,12 @@ public class Launcher extends Activity
     }
 
     @Override
-    public void onLauncherProviderChange() {}
+    public void onLauncherProviderChange() {
+    }
 
-    /** To be overriden by subclasses to hint to Launcher that we have custom content */
+    /**
+     * To be overriden by subclasses to hint to Launcher that we have custom content
+     */
     protected boolean hasCustomContentToLeft() {
         return false;
     }
@@ -514,7 +531,8 @@ public class Launcher extends Activity
      * {@link #addToCustomContentPage}. This will only be invoked if
      * {@link #hasCustomContentToLeft()} is {@code true}.
      */
-    protected void populateCustomContentContainer() {}
+    protected void populateCustomContentContainer() {
+    }
 
     /**
      * Invoked by subclasses to signal a change to the {@link #addCustomContentToLeft} value to
@@ -690,7 +708,7 @@ public class Launcher extends Activity
         } else {
             // View.generateViewId() is not available. The following fallback logic is a copy
             // of its implementation.
-            for (;;) {
+            for (; ; ) {
                 final int result = sNextGeneratedId.get();
                 // aapt-generated IDs have the high byte nonzero; clamp to the range under that.
                 int newValue = result + 1;
@@ -1057,6 +1075,11 @@ public class Launcher extends Activity
         if (mWorkspace.getCustomContentCallbacks() != null) {
             mWorkspace.getCustomContentCallbacks().onHide();
         }
+        // Add by sunjie for Home Screen Edit Feature @{
+        if (isWorkspacePreviewMode() && RGKPreviewConfigure.isMove) {
+            mWorkspacePreview.cancelDrag();
+        }
+        // }@
     }
 
     QSBScroller mQsbScroller = new QSBScroller() {
@@ -1272,6 +1295,7 @@ public class Launcher extends Activity
             mHotseat.setOnLongClickListener(this);
         }
 
+        mWorkspacePreview = (RGKWorkspacePreviewScrollLayout) findViewById(R.id.wrokspce_preview);// Add by sunjie for Home Screen Edit Feature
         mOverviewPanel = (ViewGroup) findViewById(R.id.overview_panel);
         View widgetButton = findViewById(R.id.widget_button);
         widgetButton.setOnClickListener(new OnClickListener() {
@@ -1366,7 +1390,6 @@ public class Launcher extends Activity
      * Creates a view representing a shortcut.
      *
      * @param info The data structure describing the shortcut.
-     *
      * @return A View inflated from R.layout.application.
      */
     View createShortcut(ShortcutInfo info) {
@@ -1378,9 +1401,8 @@ public class Launcher extends Activity
      * Creates a view representing a shortcut inflated from the specified resource.
      *
      * @param layoutResId The id of the XML layout used to create the shortcut.
-     * @param parent The group the shortcut belongs to.
-     * @param info The data structure describing the shortcut.
-     *
+     * @param parent      The group the shortcut belongs to.
+     * @param info        The data structure describing the shortcut.
      * @return A View inflated from layoutResId.
      */
     View createShortcut(int layoutResId, ViewGroup parent, ShortcutInfo info) {
@@ -1394,7 +1416,7 @@ public class Launcher extends Activity
     /**
      * Add a shortcut to the workspace.
      *
-     * @param data The intent describing the shortcut.
+     * @param data     The intent describing the shortcut.
      * @param cellInfo The position on screen where to create the shortcut.
      */
     private void completeAddShortcut(Intent data, long container, long screenId, int cellX, int cellY) {
@@ -1474,10 +1496,10 @@ public class Launcher extends Activity
      * Add a widget to the workspace.
      *
      * @param appWidgetId The app widget id
-     * @param cellInfo The position on screen where to create the widget.
+     * @param cellInfo    The position on screen where to create the widget.
      */
     private void completeAddAppWidget(final int appWidgetId, long container, long screenId, AppWidgetHostView hostView,
-            AppWidgetProviderInfo appWidgetInfo) {
+                                      AppWidgetProviderInfo appWidgetInfo) {
         if (appWidgetInfo == null) {
             appWidgetInfo = mAppWidgetManager.getAppWidgetInfo(appWidgetId);
         }
@@ -1647,7 +1669,8 @@ public class Launcher extends Activity
                 Log.w(TAG, "IllegalArgumentException while setting up transparent bars");
             } catch (InvocationTargetException e) {
                 Log.w(TAG, "InvocationTargetException while setting up transparent bars");
-            } finally {}
+            } finally {
+            }
         }
     }
 
@@ -1849,6 +1872,12 @@ public class Launcher extends Activity
             closeFolder();
             exitSpringLoadedDragMode();
 
+            // Add by sunjie for Home Screen Edit Feature @{
+            if (isWorkspacePreviewMode()) {
+                dismissPreview();
+            }
+            // }@
+
             // If we are already on home, then just animate back to the workspace,
             // otherwise, just wait until onResume to set the state back to Workspace
             if (alreadyOnHome) {
@@ -2033,8 +2062,8 @@ public class Launcher extends Activity
      * Start a text search.
      *
      * @return {@code true} if the search will start immediately, so any further keypresses will be
-     *         handled directly by the search UI. {@code false} if {@link Launcher} should continue
-     *         to buffer keypresses.
+     * handled directly by the search UI. {@code false} if {@link Launcher} should continue
+     * to buffer keypresses.
      */
     public boolean startSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData, Rect sourceBounds) {
         startGlobalSearch(initialQuery, selectInitialQuery, appSearchData, sourceBounds);
@@ -2045,7 +2074,7 @@ public class Launcher extends Activity
      * Starts the global search activity. This code is a copied from SearchManager
      */
     private void startGlobalSearch(String initialQuery, boolean selectInitialQuery, Bundle appSearchData,
-            Rect sourceBounds) {
+                                   Rect sourceBounds) {
         final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         ComponentName globalSearchActivity = searchManager.getGlobalSearchActivity();
         if (globalSearchActivity == null) {
@@ -2133,7 +2162,8 @@ public class Launcher extends Activity
         }
     }
 
-    protected void onWorkspaceLockedChanged() {}
+    protected void onWorkspaceLockedChanged() {
+    }
 
     private void resetAddInfo() {
         mPendingAddInfo.container = ItemInfo.NO_ID;
@@ -2145,12 +2175,12 @@ public class Launcher extends Activity
     }
 
     void addAppWidgetImpl(final int appWidgetId, final ItemInfo info, final AppWidgetHostView boundWidget,
-            final AppWidgetProviderInfo appWidgetInfo) {
+                          final AppWidgetProviderInfo appWidgetInfo) {
         addAppWidgetImpl(appWidgetId, info, boundWidget, appWidgetInfo, 0);
     }
 
     void addAppWidgetImpl(final int appWidgetId, final ItemInfo info, final AppWidgetHostView boundWidget,
-            final AppWidgetProviderInfo appWidgetInfo, int delay) {
+                          final AppWidgetProviderInfo appWidgetInfo, int delay) {
         if (appWidgetInfo.configure != null) {
             mPendingAddWidgetInfo = appWidgetInfo;
             mPendingAddWidgetId = appWidgetId;
@@ -2183,9 +2213,9 @@ public class Launcher extends Activity
      * Process a shortcut drop.
      *
      * @param componentName The name of the component
-     * @param screenId The ID of the screen where it should be added
-     * @param cell The cell it should be added to, optional
-     * @param position The location on the screen where it was dropped, optional
+     * @param screenId      The ID of the screen where it should be added
+     * @param cell          The cell it should be added to, optional
+     * @param position      The location on the screen where it was dropped, optional
      */
     void processShortcutFromDrop(ComponentName componentName, long container, long screenId, int[] cell, int[] loc) {
         resetAddInfo();
@@ -2206,13 +2236,13 @@ public class Launcher extends Activity
     /**
      * Process a widget drop.
      *
-     * @param info The PendingAppWidgetInfo of the widget being added.
+     * @param info     The PendingAppWidgetInfo of the widget being added.
      * @param screenId The ID of the screen where it should be added
-     * @param cell The cell it should be added to, optional
+     * @param cell     The cell it should be added to, optional
      * @param position The location on the screen where it was dropped, optional
      */
     void addAppWidgetFromDrop(PendingAddWidgetInfo info, long container, long screenId, int[] cell, int[] span,
-            int[] loc) {
+                              int[] loc) {
         resetAddInfo();
         mPendingAddInfo.container = info.container = container;
         mPendingAddInfo.screenId = info.screenId = screenId;
@@ -2330,6 +2360,10 @@ public class Launcher extends Activity
             } else {
                 showOverviewMode(true);
             }
+            // Add by sunjie for Home Screen Edit Feature @{
+        } else if (isWorkspacePreviewMode()) {
+            dismissPreview();
+            // }@
         } else if (mWorkspace.isInOverviewMode()) {
             mWorkspace.exitOverviewMode(true);
         } else if (mWorkspace.getOpenFolder() != null) {
@@ -2367,7 +2401,7 @@ public class Launcher extends Activity
         if (v.getWindowToken() == null) {
             return;
         }
-Log.w("zhao11folder","v:"+v);
+        Log.w("zhao11folder", "v:" + v);
         if (!mWorkspace.isFinishedSwitchingState()) {
             return;
         }
@@ -2448,6 +2482,11 @@ Log.w("zhao11folder","v:"+v);
      * @param v The view that was clicked.
      */
     public void onClickSearchButton(View v) {
+        // Add by sunjie for Home Screen Edit Feature @{
+        if (isWorkspacePreviewMode()) {
+            return;
+        }
+        // }@
         v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
 
         onSearchRequested();
@@ -2459,6 +2498,12 @@ Log.w("zhao11folder","v:"+v);
      * @param v The view that was clicked.
      */
     public void onClickVoiceButton(View v) {
+
+        // Add by sunjie for Home Screen Edit Feature @{
+        if (isWorkspacePreviewMode()) {
+            return;
+        }
+        // }@
         v.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY);
 
         startVoice();
@@ -2497,7 +2542,7 @@ Log.w("zhao11folder","v:"+v);
     }
 
     private void showBrokenAppInstallDialog(final String packageName,
-            DialogInterface.OnClickListener onSearchClickListener) {
+                                            DialogInterface.OnClickListener onSearchClickListener) {
         new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_DeviceDefault))
                 .setTitle(R.string.abandoned_promises_title).setMessage(R.string.abandoned_promise_explanation)
                 .setPositiveButton(R.string.abandoned_search, onSearchClickListener)
@@ -2680,13 +2725,15 @@ Log.w("zhao11folder","v:"+v);
         return mHapticFeedbackTouchListener;
     }
 
-    public void onDragStarted(View view) {}
+    public void onDragStarted(View view) {
+    }
 
     /**
      * Called when the user stops interacting with the launcher. This implies that the user is now
      * on the homescreen and is not doing housekeeping.
      */
-    protected void onInteractionEnd() {}
+    protected void onInteractionEnd() {
+    }
 
     /**
      * Called when the user starts interacting with the launcher. The possible interactions are: -
@@ -2694,7 +2741,8 @@ Log.w("zhao11folder","v:"+v);
      * time to stop doing things that only make sense when the user is on the homescreen and not
      * doing housekeeping.
      */
-    protected void onInteractionBegin() {}
+    protected void onInteractionBegin() {
+    }
 
     void startApplicationDetailsActivity(ComponentName componentName, UserHandleCompat user) {
         String packageName = componentName.getPackageName();
@@ -2922,12 +2970,12 @@ Log.w("zhao11folder","v:"+v);
         getDragLayer().sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
     }
 
-    public boolean getIsFolderClose(){
+    public boolean getIsFolderClose() {
         return isFolderClose;
     }
 
     public void closeFolder() {
-        Log.i("zhao11closefolder","closeFolder");
+        Log.i("zhao11closefolder", "closeFolder");
         Folder folder = mWorkspace != null ? mWorkspace.getOpenFolder() : null;
         if (folder != null) {
             if (folder.isEditingName()) {
@@ -2938,7 +2986,7 @@ Log.w("zhao11folder","v:"+v);
     }
 
     void closeFolder(Folder folder) {
-        Log.i("zhao11closefolder","closeFolder11111111111111");
+        Log.i("zhao11closefolder", "closeFolder11111111111111");
         folder.getInfo().opened = false;
         isFolderClose = true;
         ViewGroup parent = (ViewGroup) folder.getParent().getParent();
@@ -2964,7 +3012,7 @@ Log.w("zhao11folder","v:"+v);
     }
 
     public boolean onLongClick(View v) {
-        Log.i("zhao11","onLongClick");
+        Log.i("zhao11", "onLongClick");
         if (!isDraggingEnabled()) return false;
         if (isWorkspaceLocked()) return false;
         if (mState != State.WORKSPACE) return false;
@@ -2987,7 +3035,8 @@ Log.w("zhao11folder","v:"+v);
         View itemUnderLongClick = null;
         if (v.getTag() instanceof ItemInfo) {
             ItemInfo info = (ItemInfo) v.getTag();
-            longClickCellInfo = new CellLayout.CellInfo(v, info);;
+            longClickCellInfo = new CellLayout.CellInfo(v, info);
+            ;
             itemUnderLongClick = longClickCellInfo.cell;
             resetAddInfo();
         }
@@ -3010,7 +3059,7 @@ Log.w("zhao11folder","v:"+v);
                 final boolean isAllAppsButton =
                         inHotseat
                                 && isAllAppsButtonRank(mHotseat.getOrderInHotseat(longClickCellInfo.cellX,
-                                        longClickCellInfo.cellY));
+                                longClickCellInfo.cellY));
                 if (!(itemUnderLongClick instanceof Folder || isAllAppsButton)) {
                     // User long pressed on an item
                     mWorkspace.startDrag(longClickCellInfo);
@@ -3110,7 +3159,7 @@ Log.w("zhao11folder","v:"+v);
     }
 
     private void showAppsCustomizeHelper(final boolean animated, final boolean springLoaded,
-            final AppsCustomizePagedView.ContentType contentType) {
+                                         final AppsCustomizePagedView.ContentType contentType) {
         if (mStateAnimation != null) {
             mStateAnimation.setDuration(0);
             mStateAnimation.cancel();
@@ -3343,7 +3392,7 @@ Log.w("zhao11folder","v:"+v);
      * @param animated If true, the transition will be animated.
      */
     private void hideAppsCustomizeHelper(Workspace.State toState, final boolean animated, final boolean springLoaded,
-            final Runnable onCompleteRunnable) {
+                                         final Runnable onCompleteRunnable) {
 
         if (mStateAnimation != null) {
             mStateAnimation.setDuration(0);
@@ -3639,7 +3688,8 @@ Log.w("zhao11folder","v:"+v);
         onWorkspaceShown(animated);
     }
 
-    public void onWorkspaceShown(boolean animated) {}
+    public void onWorkspaceShown(boolean animated) {
+    }
 
     void showAllApps(boolean animated, AppsCustomizePagedView.ContentType contentType, boolean resetPageToZero) {
         if (mState != State.WORKSPACE) return;
@@ -3741,7 +3791,9 @@ Log.w("zhao11folder","v:"+v);
         }
     }
 
-    /** Maps the current orientation to an index for referencing orientation correct global icons */
+    /**
+     * Maps the current orientation to an index for referencing orientation correct global icons
+     */
     private int getCurrentOrientationIndexForGlobalIcons() {
         // default - 0, landscape - 1
         switch (getResources().getConfiguration().orientation) {
@@ -3776,7 +3828,7 @@ Log.w("zhao11folder","v:"+v);
 
     // if successful in getting icon, return it; otherwise, set button to use default drawable
     private Drawable.ConstantState updateTextButtonWithIconFromExternalActivity(int buttonId,
-            ComponentName activityName, int fallbackDrawableId, String toolbarResourceName) {
+                                                                                ComponentName activityName, int fallbackDrawableId, String toolbarResourceName) {
         Drawable toolbarIcon = getExternalPackageToolbarIcon(activityName, toolbarResourceName);
         Resources r = getResources();
         int w = r.getDimensionPixelSize(R.dimen.toolbar_external_icon_width);
@@ -3802,7 +3854,7 @@ Log.w("zhao11folder","v:"+v);
 
     // if successful in getting icon, return it; otherwise, set button to use default drawable
     private Drawable.ConstantState updateButtonWithIconFromExternalActivity(int buttonId, ComponentName activityName,
-            int fallbackDrawableId, String toolbarResourceName) {
+                                                                            int fallbackDrawableId, String toolbarResourceName) {
         ImageView button = (ImageView) findViewById(buttonId);
         Drawable toolbarIcon = getExternalPackageToolbarIcon(activityName, toolbarResourceName);
 
@@ -3999,21 +4051,22 @@ Log.w("zhao11folder","v:"+v);
     /**
      * If the activity is currently paused, signal that we need to run the passed Runnable in
      * onResume.
-     *
+     * <p/>
      * This needs to be called from incoming places where resources might have been loaded while we
      * are paused. That is becaues the Configuration might be wrong when we're not running, and if
      * it comes back to what it was when we were paused, we are not restarted.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      *
      * @return true if we are currently paused. The caller might be able to skip some work in that
-     *         case since we will come back again.
+     * case since we will come back again.
      */
     private boolean waitUntilResume(Runnable run, boolean deletePreviousRunnables) {
         if (mPaused) {
             Log.i(TAG, "Deferring update until onResume");
             if (deletePreviousRunnables) {
-                while (mBindOnResumeCallbacks.remove(run)) {}
+                while (mBindOnResumeCallbacks.remove(run)) {
+                }
             }
             mBindOnResumeCallbacks.add(run);
             return true;
@@ -4032,15 +4085,15 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * If the activity is currently paused, signal that we need to re-run the loader in onResume.
-     *
+     * <p/>
      * This needs to be called from incoming places where resources might have been loaded while we
      * are paused. That is becaues the Configuration might be wrong when we're not running, and if
      * it comes back to what it was when we were paused, we are not restarted.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      *
      * @return true if we are currently paused. The caller might be able to skip some work in that
-     *         case since we will come back again.
+     * case since we will come back again.
      */
     public boolean setLoadOnResume() {
         if (mPaused) {
@@ -4065,7 +4118,7 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * Refreshes the shortcuts shown on the workspace.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void startBinding() {
@@ -4139,7 +4192,7 @@ Log.w("zhao11folder","v:"+v);
     }
 
     public void bindAppsAdded(final ArrayList<Long> newScreens, final ArrayList<ItemInfo> addNotAnimated,
-            final ArrayList<ItemInfo> addAnimated, final ArrayList<AppInfo> addedApps) {
+                              final ArrayList<ItemInfo> addAnimated, final ArrayList<AppInfo> addedApps) {
         Runnable r = new Runnable() {
             public void run() {
                 bindAppsAdded(newScreens, addNotAnimated, addAnimated, addedApps);
@@ -4173,11 +4226,11 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * Bind the items start-end from the list.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void bindItems(final ArrayList<ItemInfo> shortcuts, final int start, final int end,
-            final boolean forceAnimateIcons) {
+                          final boolean forceAnimateIcons) {
         Runnable r = new Runnable() {
             public void run() {
                 bindItems(shortcuts, start, end, forceAnimateIcons);
@@ -4296,7 +4349,7 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * Add the views for a widget to the workspace.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void bindAppWidget(final LauncherAppWidgetInfo item) {
@@ -4399,7 +4452,7 @@ Log.w("zhao11folder","v:"+v);
      * Restores a pending widget.
      *
      * @param appWidgetId The app widget id
-     * @param cellInfo The position on screen where to create the widget.
+     * @param cellInfo    The position on screen where to create the widget.
      */
     private void completeRestoreAppWidget(final int appWidgetId) {
         LauncherAppWidgetHostView view = mWorkspace.getWidgetForAppWidgetId(appWidgetId);
@@ -4421,7 +4474,7 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * Callback saying that there aren't any more items to bind.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void finishBindingItems(final boolean upgradePath) {
@@ -4522,7 +4575,7 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * Add the icons for all apps.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void bindAllApplications(final ArrayList<AppInfo> apps) {
@@ -4547,7 +4600,7 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * A package was updated.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void bindAppsUpdated(final ArrayList<AppInfo> apps) {
@@ -4589,7 +4642,7 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * Update the state of a package, typically related to install state.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     @Override
@@ -4601,7 +4654,7 @@ Log.w("zhao11folder","v:"+v);
 
     /**
      * Update the label and icon of all the icons in a package
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     @Override
@@ -4616,11 +4669,11 @@ Log.w("zhao11folder","v:"+v);
      * applications to remove, the reason being that this can be called when a package is updated as
      * well. In that scenario, we only remove specific components from the workspace, where as
      * package-removal should clear all items by package name.
-     *
+     * <p/>
      * Implementation of the method from LauncherModel.Callbacks.
      */
     public void bindComponentsRemoved(final ArrayList<String> packageNames, final ArrayList<AppInfo> appInfos,
-            final UserHandleCompat user) {
+                                      final UserHandleCompat user) {
         Runnable r = new Runnable() {
             public void run() {
                 bindComponentsRemoved(packageNames, appInfos, user);
@@ -4940,7 +4993,7 @@ Log.w("zhao11folder","v:"+v);
     }
 
     public ItemInfo createShortcutDragInfo(Intent shortcutIntent, CharSequence caption, Bitmap icon,
-            UserHandleCompat user) {
+                                           UserHandleCompat user) {
         UserManagerCompat userManager = UserManagerCompat.getInstance(this);
         CharSequence contentDescription = userManager.getBadgedLabelForUser(caption, user);
         return new ShortcutInfo(shortcutIntent, caption, contentDescription, icon, user);
@@ -4957,7 +5010,8 @@ Log.w("zhao11folder","v:"+v);
     }
 
     @Override
-    public void onPageSwitch(View newPage, int newPageIndex) {}
+    public void onPageSwitch(View newPage, int newPageIndex) {
+    }
 
     /**
      * Prints out out state for debugging.
@@ -5070,9 +5124,664 @@ Log.w("zhao11folder","v:"+v);
             }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void) null);
         }
     }
+
+
+    // Add by sunjie for Home Screen Edit Feature @{
+    public boolean isPreviewStates() {
+        return mState == State.WORKSPACE_PREVIEW;
+    }
+
+    private ArrayList<RGKDragGridView> mListDragGridView = new ArrayList<RGKDragGridView>();
+    private RGKDragGridView mDragGridView = null;
+    private RGKWorkspacePreviewScrollLayout mWorkspacePreview = null;
+    private List<RGKPreviewItemInfo> listData = null;
+    private LinearLayout.LayoutParams param;
+    private LinearLayout mLinearLayout;
+    private static float bitmapWidth = 0;
+    private static float bitmapHeight = 0;
+    private static int MAX_SCREEN_COUNT = RGKWorkspacePreviewScrollLayout.MAX_SCROLLLAYOUT_COUNT
+            * RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE;
+
+    public void showPreviews() {
+        if (mState != State.WORKSPACE)
+            return;
+        if (mListDragGridView == null || mListDragGridView.size() <= 0) {
+            mState = State.WORKSPACE_PREVIEW;
+            initPreviewBitmap(0, mWorkspace.getChildCount());
+            initPreviewUi();
+            initPreviewData();
+            hideWorkspaceSearchAndHotseat();
+            updateSearchBarVisibility(false);
+            mWorkspacePreview.setVisibility(View.VISIBLE);
+            Animation animation = AnimationUtils.loadAnimation(
+                    getApplicationContext(), R.anim.rgk_panel_enter);
+            mWorkspacePreview.setAnimation(animation);
+        }
+    }
+
+    private void initPreviewBitmap(int start, int end) {
+        final Resources resources = getResources();
+
+        hideHotseat(false);
+        mWorkspace.setVisibility(View.GONE);
+
+
+        float max = RGKPreviewConfigure.WORKSPACE_PREVIEW_COLUMNS;
+
+        final Rect r = new Rect();
+        try {
+            resources.getDrawable(R.drawable.rgk_thumbnail_bg).getPadding(r);
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        }
+
+        /* Remove @{
+        int extraW = (int) ((r.left + r.right) * max);
+        int extraH = r.top + r.bottom;
+
+        int aW = cell.getWidth() - extraW;
+        int aH = cell.getHeight() - extraH;
+        float w = aW / max;
+        float h = aH / max;
+
+        int width = cell.getWidth();
+        int height = cell.getHeight();
+
+        float scaleW = w / width;
+        float scaleH = h / height;
+
+        bitmapWidth = w;
+        bitmapHeight = h;
+        }@ */
+
+        // Add @{
+        DeviceProfile prof = LauncherAppState.getInstance().getDynamicGrid().getDeviceProfile();
+        bitmapWidth = prof.previewWidth;
+        bitmapHeight = prof.previewHeight;
+        float scaleW = prof.previewScale;
+        float scaleH = prof.previewScale;
+        // }@
+
+        if (listData == null) {
+            listData = new ArrayList<RGKPreviewItemInfo>(end - start);
+        }
+        ArrayList<CellLayout> cellLayouts = mWorkspace
+                .getWorkspaceAndHotseatCellLayouts();
+
+        ShortcutAndWidgetContainer container = null;
+        for (int i = start; i < end; i++) {
+            container = cellLayouts.get(i).getShortcutsAndWidgets();
+            int count = container.getChildCount();
+
+            final Bitmap bitmap = Bitmap.createBitmap((int) bitmapWidth,
+                    (int) bitmapHeight, Bitmap.Config.ARGB_8888);
+            final Canvas canvas = new Canvas(bitmap);
+            canvas.scale(scaleW, scaleH);
+            canvas.translate(0, 0);
+            container.dispatchDraw(canvas);
+
+            RGKPreviewItemInfo tempRGKPreviewItemInfo = new RGKPreviewItemInfo();
+            tempRGKPreviewItemInfo
+                    .setCurrentPage(mWorkspace.getCurrentPage() == i);
+            tempRGKPreviewItemInfo.setHomePage(mWorkspace.getDefaultScreen() == i);
+            tempRGKPreviewItemInfo.setEmptyPage(count == 0);
+            tempRGKPreviewItemInfo.setIndex(i);
+            tempRGKPreviewItemInfo.setImage(bitmap);
+
+            listData.add(tempRGKPreviewItemInfo);
+        }
+        showNewScreenAddButton(false);
+    }
+
+    public void showNewScreenAddButton(boolean isUpdate) {
+        RGKPreviewItemInfo tempRGKPreviewItemInfo = new RGKPreviewItemInfo();
+
+        tempRGKPreviewItemInfo.setCurrentPage(false);
+        tempRGKPreviewItemInfo.setHomePage(false);
+        tempRGKPreviewItemInfo.setEmptyPage(false);
+        tempRGKPreviewItemInfo.setIndex(listData.size());
+        tempRGKPreviewItemInfo
+                .setImage(creatNewScreenBitmapForResources(R.drawable.rgk_thumbnail_new_screen_n));
+
+        listData.add(tempRGKPreviewItemInfo);
+
+        if (isUpdate) {
+            updateListDragGridView(false, false);
+        }
+    }
+
+    private Bitmap creatNewScreenBitmapForResources(int resId) {
+        final Resources resources = getResources();
+
+        Bitmap bitmap = Bitmap.createBitmap((int) bitmapWidth,
+                (int) bitmapHeight, Bitmap.Config.ARGB_8888);
+        Drawable drawable = resources.getDrawable(resId);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, (int) bitmapWidth, (int) bitmapHeight);
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public void hideNewScreenAddButton() {
+        listData.remove(listData.size() - 1);
+        updateListDragGridView(true, false);
+    }
+
+    public void updateListDragGridView(boolean isDelete,
+                                       boolean isSnapToCureentScreen) {
+        int countPage = (int) Math.ceil(listData.size()
+                / (float) RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE);
+
+        if (isDelete) {
+            if (countPage < RGKPreviewConfigure.countPages) {
+                mWorkspacePreview
+                        .removeViewAt(RGKPreviewConfigure.countPages - 1);
+                mListDragGridView.remove(RGKPreviewConfigure.countPages - 1);
+                RGKPreviewConfigure.countPages = countPage;
+
+                if (RGKPreviewConfigure.curentPage > RGKPreviewConfigure.countPages - 1
+                        && isSnapToCureentScreen) {
+                    RGKPreviewConfigure.curentPage = RGKPreviewConfigure.countPages - 1;
+                    mWorkspacePreview
+                            .snapToScreen(RGKPreviewConfigure.curentPage);
+                }
+                ((RGKPreviewAdapter) mListDragGridView.get(
+                        RGKPreviewConfigure.curentPage).getAdapter())
+                        .notifyDataSetChanged();
+            }
+        } else {
+            if (countPage > RGKPreviewConfigure.countPages) {
+                mWorkspacePreview
+                        .addView(addDragGridView(RGKPreviewConfigure.countPages));
+                RGKPreviewConfigure.countPages = countPage;
+                ((RGKPreviewAdapter) mListDragGridView.get(
+                        RGKPreviewConfigure.curentPage).getAdapter())
+                        .notifyDataSetChanged();
+
+                if (isSnapToCureentScreen) {
+                    RGKPreviewConfigure.curentPage = RGKPreviewConfigure.countPages - 1;
+                    mWorkspacePreview
+                            .snapToScreen(RGKPreviewConfigure.curentPage);
+                }
+            }
+        }
+        updateAllChildGridView();
+    }
+
+    public void updateAllChildGridView() {
+        for (int i = 0; i < RGKPreviewConfigure.countPages; i++) {
+            ((RGKPreviewAdapter) ((mListDragGridView.get(i)).getAdapter()))
+                    .showDropItem(true);
+            ((RGKPreviewAdapter) mListDragGridView.get(i).getAdapter())
+                    .notifyDataSetChanged();
+        }
+    }
+
+    private void initPreviewUi() {
+        RGKPreviewConfigure.init(this);
+        param = new LinearLayout.LayoutParams(
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.MATCH_PARENT);
+    }
+
+    private void initPreviewData() {
+        RGKPreviewConfigure.countPages = (int) Math.ceil(listData.size()
+                / (float) RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE);
+
+        for (int i = 0; i < RGKPreviewConfigure.countPages; i++) {
+            mWorkspacePreview.addView(addDragGridView(i));
+        }
+
+        mWorkspacePreview
+                .setPageListener(new RGKWorkspacePreviewScrollLayout.PageListener() {
+                    @Override
+                    public void page(int page) {
+                    }
+                });
+    }
+
+    private LinearLayout addDragGridView(int index) {
+        mLinearLayout = new LinearLayout(this);
+        mLinearLayout.setOrientation(LinearLayout.VERTICAL);
+        mDragGridView = new RGKDragGridView(this);
+        mDragGridView
+                .setNumColumns(RGKPreviewConfigure.WORKSPACE_PREVIEW_COLUMNS);
+        mDragGridView.setGravity(Gravity.CENTER);
+        mDragGridView.setAdapter(new RGKPreviewAdapter(this, mWorkspace, index,
+                RGKPreviewConfigure.countPages));
+        mDragGridView.setVisibility(View.VISIBLE);
+        mDragGridView.setHorizontalSpacing(LauncherAppState.getInstance().getDynamicGrid().getDeviceProfile().previewHSpace);
+        mDragGridView.setVerticalSpacing(LauncherAppState.getInstance().getDynamicGrid().getDeviceProfile().previewVSpace);
+
+        mDragGridView
+                .setGridPageListener(new RGKDragGridView.GridPageListener() {
+                    @Override
+                    public void page(int page) {
+                        mWorkspacePreview.snapToScreen(page);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                RGKPreviewConfigure.isChangingPage = false;
+                                if (RGKPreviewConfigure.isMove) {
+                                    mWorkspacePreview.resetMoveParameter();
+                                }
+                            }
+                        }, 300);
+                    }
+                });
+
+        mDragGridView
+                .setOnGridItemChangeListener(new RGKDragGridView.GridItemChangeListener() {
+                    @Override
+                    public void change(int from, int to, int count) {
+                        ((RGKPreviewAdapter) mListDragGridView.get(
+                                RGKPreviewConfigure.curentPage).getAdapter())
+                                .exchange(from, to);
+                        updateAllChildGridView();
+                    }
+                });
+
+        mListDragGridView.add(mDragGridView);
+        mLinearLayout.addView(mListDragGridView.get(index), param);
+        return mLinearLayout;
+    }
+
+    public void swapListData(int startPosition, int endPosition) {
+        if (endPosition > listData.size() - 1) {
+            endPosition = listData.size() - 1;
+        }
+
+        if (startPosition > listData.size() - 1) {
+            startPosition = listData.size() - 1;
+        }
+
+        listData.get(startPosition).setIndex(endPosition);
+        Object startObject = listData.get(startPosition);
+
+        if (startPosition > endPosition) {
+            for (int i = startPosition - 1; i >= endPosition; i--) {
+                listData.get(i).setIndex(i + 1);
+            }
+            listData.add(endPosition, (RGKPreviewItemInfo) startObject);
+            listData.remove(startPosition + 1);
+        } else {
+            for (int i = startPosition + 1; i <= endPosition; i++) {
+                listData.get(i).setIndex(i - 1);
+            }
+            listData.add(endPosition + 1, (RGKPreviewItemInfo) startObject);
+            listData.remove(startPosition);
+        }
+    }
+
+    public void addNewPreviewScreen() {
+        if (mWorkspace.addExtraEmptyScreen()) {
+            mWorkspace.commitExtraEmptyScreen();
+        }
+
+        RGKPreviewItemInfo tempRGKPreviewItemInfo = new RGKPreviewItemInfo();
+        tempRGKPreviewItemInfo.setCurrentPage(false);
+        tempRGKPreviewItemInfo.setHomePage(false);
+        tempRGKPreviewItemInfo.setEmptyPage(true);
+        tempRGKPreviewItemInfo.setIndex(listData.size() - 1);
+        tempRGKPreviewItemInfo.setImage(Bitmap.createBitmap((int) bitmapWidth,
+                (int) bitmapHeight, Bitmap.Config.ARGB_8888));
+
+        listData.add(listData.size() - 1, tempRGKPreviewItemInfo);
+
+        listData.get(listData.size() - 1).setIndex(listData.size() - 1);
+
+        if (mWorkspace.getChildCount() == MAX_SCREEN_COUNT) {
+            updateListDragGridView(false, false);
+        } else {
+            updateListDragGridView(false, true);
+        }
+    }
+
+    public void dismissPreview() {
+        Animation animation = AnimationUtils.loadAnimation(
+                getApplicationContext(), R.anim.rgk_panel_exit);
+        mWorkspacePreview.setAnimation(animation);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation arg0) {
+
+                for (int i = 0; i < listData.size(); i++) {
+                    if (listData.get(i).isCurrentPage()) {
+                        if (listData.get(i).getIndex() > mWorkspace.getPageCount() - 1) {
+                            mWorkspace.setCurrentPage(0);
+                        } else {
+                            mWorkspace.setCurrentPage(listData.get(i).getIndex());
+                        }
+                        break;
+                    }
+                }
+                mWorkspace.snapToPage(mWorkspace.getCurrentPage(), 0);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation arg0) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation arg0) {
+                mWorkspacePreview.setVisibility(View.GONE);
+                recycleBitmap();
+                mWorkspacePreview.removeAllViews();
+                mListDragGridView.removeAll(mListDragGridView);
+            }
+        });
+
+        mWorkspace.setVisibility(View.VISIBLE);
+        updateSearchBarVisibility(true);
+        showWorkspaceSearchAndHotseat();
+        Animation animation1 = AnimationUtils.loadAnimation(
+                getApplicationContext(), R.anim.rgk_workspace_enter);
+        mWorkspace.setAnimation(animation1);
+        mState = State.WORKSPACE;
+    }
+
+    private void recycleBitmap() {
+        if (listData != null) {
+            for (int i = 0; i < listData.size(); i++) {
+                listData.get(i).getImage().recycle();
+            }
+            listData.removeAll(listData);
+            listData = null;
+        }
+    }
+
+    public RGKDragGridView getCurentDragPageView() {
+        if (mListDragGridView.size() == 0)
+            return null;
+        return mListDragGridView.get(RGKPreviewConfigure.curentPage);
+    }
+
+    public RGKDragGridView getDragPageView(int index) {
+        return mListDragGridView.get(index);
+    }
+
+    public boolean isWorkspacePreviewMode() {
+        return mState == State.WORKSPACE_PREVIEW;
+    }
+
+    public void deletePreviewScreen(int deleteIndex) {
+        if (listData == null || deleteIndex < 0 || deleteIndex >= listData.size()) {
+            return;
+        }
+        int index = 0;
+        for (int i = deleteIndex + 1; i < listData.size(); i++) {
+            index = listData.get(i).getIndex() - 1;
+            listData.get(i).setIndex(index);
+        }
+
+        listData.get(deleteIndex).getImage().recycle();
+        listData.remove(deleteIndex);
+
+        updateListDragGridView(true, true);
+
+        mWorkspace.deleteWorkspaceScreen(deleteIndex);
+    }
+
+    private void updateSearchBarVisibility(boolean visible) {
+        final View searchButtonContainer = findViewById(R.id.search_button_container);
+        final View voiceButtonContainer = findViewById(R.id.voice_button_container);
+        final View voiceButtonProxy = findViewById(R.id.voice_button_proxy);
+        if (searchButtonContainer != null)
+            searchButtonContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (voiceButtonContainer != null)
+            voiceButtonContainer.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (voiceButtonProxy != null)
+            voiceButtonProxy.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    public class RGKPreviewAdapter extends BaseAdapter {
+        private static final String TAG = "RGKPreviewAdapter";
+        private Context mContext = null;
+        private int holdPosition;
+        private boolean isChanged = false;
+        private boolean ShowItem = true;
+        private int mCurrentPage = 0;
+        private Workspace mWorkspace;
+        private LayoutInflater mInflater;
+        private int startIndex = 0;
+
+        public RGKPreviewAdapter(Context mContext, Workspace mWorkspace,
+                                 int mCurrentPage, int mTotalPage) {
+            this.mContext = mContext;
+            this.mWorkspace = mWorkspace;
+            mInflater = LayoutInflater.from(this.mContext);
+            this.mCurrentPage = mCurrentPage;
+            startIndex = this.mCurrentPage * RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE;
+        }
+
+        @Override
+        public int getCount() {
+            if (mCurrentPage < (RGKPreviewConfigure.countPages - 1)) {
+                return RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE;
+            } else {
+                if (listData.size() % RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE == 0) {
+                    return RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE;
+                }
+                return (listData.size() % RGKPreviewConfigure.WORKSPACE_PREVIEW_PAGE_SIZE);
+            }
+        }
+
+        @Override
+        public Object getItem(int arg0) {
+            return listData.get(arg0);
+        }
+
+        @Override
+        public long getItemId(int arg0) {
+            return arg0;
+        }
+
+        public void showDropItem(boolean showItem) {
+            this.ShowItem = showItem;
+        }
+
+        public void resetParameter() {
+            holdPosition = 0;
+            isChanged = false;
+            ShowItem = true;
+        }
+
+        public void setChange(boolean isChanged) {
+            this.isChanged = isChanged;
+        }
+
+        public void setHoldPosition(int holdPosition) {
+            this.holdPosition = holdPosition;
+        }
+
+        public void exchange(int startPosition, int endPosition) {
+            startPosition = startPosition + startIndex;
+            endPosition = endPosition + startIndex;
+
+            if (endPosition > listData.size() - 1) {
+                endPosition = listData.size() - 1;
+            }
+
+            if (startPosition > listData.size() - 1) {
+                startPosition = listData.size() - 1;
+            }
+
+            listData.get(startPosition).setIndex(endPosition);
+            holdPosition = endPosition;
+            Object startObject = getItem(startPosition);
+
+            if (startPosition > endPosition) {
+                for (int i = startPosition - 1; i >= endPosition; i--) {
+                    listData.get(i).setIndex(i + 1);
+                }
+                listData.add(endPosition, (RGKPreviewItemInfo) startObject);
+                listData.remove(startPosition + 1);
+            } else {
+                for (int i = startPosition + 1; i <= endPosition; i++) {
+                    listData.get(i).setIndex(i - 1);
+                }
+                listData.add(endPosition + 1, (RGKPreviewItemInfo) startObject);
+                listData.remove(startPosition);
+            }
+
+            SharedPreferences.Editor editor = getSharedPrefs().edit();
+            editor.putInt(RGKPreference.KEY_DEFAULT_SCREEN, getHomeIndex());
+            editor.commit();
+            isChanged = true;
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            int index = position + startIndex;
+            convertView = mInflater.inflate(
+                    R.layout.rgk_workspace_preview_item, parent, false);
+
+            ImageView thumbnail = (ImageView) convertView
+                    .findViewById(R.id.thumbnail);
+            ImageView home_mark = (ImageView) convertView
+                    .findViewById(R.id.home_mark);
+            ImageView delete = (ImageView) convertView
+                    .findViewById(R.id.delete);
+
+            if (isChanged) {
+                if (index == holdPosition) {
+                    if (!ShowItem) {
+                        convertView.setVisibility(View.INVISIBLE);
+                    }
+                }
+            }
+
+            if ((mCurrentPage + 1) == RGKPreviewConfigure.countPages
+                    && index == (listData.size() - 1)) {
+                if (!RGKPreviewConfigure.isHideButton) {
+                    if (mWorkspace.getChildCount() < MAX_SCREEN_COUNT) {
+                        thumbnail.setBackgroundResource(R.drawable.rgk_thumbnail_new_screen);
+                    }
+                    thumbnail.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (mContext instanceof Launcher) {
+                                addNewPreviewScreen();
+                            }
+                        }
+                    });
+
+                    return convertView;
+                }
+            }
+
+            if (listData.get(index).isHomePage()) {
+                home_mark.setImageResource(R.drawable.rgk_home_button_sethome_on);
+            } else {
+                home_mark.setImageResource(R.drawable.rgk_home_button_sethome_off);
+            }
+
+            thumbnail.setImageBitmap(listData.get(index).getImage());
+            thumbnail.setBackgroundResource(R.drawable.rgk_thumbnail_bg);
+
+            delete.setTag(listData.get(index).getIndex());
+            delete.setImageResource(R.drawable.rgk_delete_screen_btn);
+            if (listData.get(index).isEmptyPage()) {
+                delete.setVisibility(View.VISIBLE);
+            } else {
+                delete.setVisibility(View.GONE);
+            }
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (mContext instanceof Launcher) {
+                        final int idx = (Integer) v.getTag();
+
+                        if (listData.get(idx).isCurrentPage()) {
+                            if (idx == 0) {
+                                listData.get(idx + 1).setCurrentPage(true);
+                                mWorkspace.setCurrentPage(listData.get(idx + 1).getIndex());
+                            } else {
+                                listData.get(idx - 1).setCurrentPage(true);
+                                mWorkspace.setCurrentPage(listData.get(idx - 1).getIndex());
+                            }
+                        }
+
+                        deletePreviewScreen(idx);
+                    }
+                }
+            });
+
+            home_mark.setTag(index);
+            home_mark.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    int index = (Integer) v.getTag();
+                    exchangeHomeIndex(listData.get(index).getIndex());
+                    SharedPreferences.Editor editor = getSharedPrefs().edit();
+                    editor.putInt(RGKPreference.KEY_DEFAULT_SCREEN, listData.get(index).getIndex());
+                    editor.commit();
+                    mWorkspace.setDefaultScreen(listData.get(index).getIndex());
+                    updateAllChildGridView();
+                }
+            });
+
+            thumbnail.setTag(index);
+            thumbnail.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    int index = (Integer) v.getTag();
+                    v.setFocusableInTouchMode(true);
+
+                    exchangeCurrentIndex(listData.get(index).getIndex());
+                    dismissPreview();
+                }
+            });
+
+            thumbnail.setOnLongClickListener(new View.OnLongClickListener() {
+
+                @Override
+                public boolean onLongClick(View arg0) {
+                    return false;
+                }
+            });
+
+            return convertView;
+        }
+
+        public int getHomeIndex() {
+            for (int i = 0; i < listData.size(); i++) {
+                if (listData.get(i).isHomePage()) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        public void exchangeHomeIndex(int homeIndex) {
+            listData.get(getHomeIndex()).setHomePage(false);
+            listData.get(homeIndex).setHomePage(true);
+            SharedPreferences.Editor editor = getSharedPrefs().edit();
+            editor.putInt(RGKPreference.KEY_DEFAULT_SCREEN, homeIndex);
+            editor.commit();
+        }
+
+        public int getCurrentIndex() {
+            for (int i = 0; i < listData.size(); i++) {
+                if (listData.get(i).isCurrentPage()) {
+                    return i;
+                }
+            }
+            return 0;
+        }
+
+        public void exchangeCurrentIndex(int currentIndex) {
+            listData.get(getCurrentIndex()).setCurrentPage(false);
+            listData.get(currentIndex).setCurrentPage(true);
+        }
+    }
+    // }@
 }
-
-
 interface LauncherTransitionable {
     View getContent();
 

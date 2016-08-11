@@ -2285,6 +2285,67 @@ public class LauncherProvider extends ContentProvider {
         to.put(key, from.getAsInteger(key));
     }
 
+    // Add by sunjie for Home Screen Edit Feature @{
+    public void deleteScreen(int screenPosition) {
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        String delete = "delete from " + TABLE_WORKSPACE_SCREENS + " where "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " = "
+                + screenPosition;
+        db.execSQL(delete);
+        String update = "update " + TABLE_WORKSPACE_SCREENS + " set "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " = "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK + "-1 where "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK
+                + " > " + screenPosition;
+        db.execSQL(update);
+    }
+
+    /**
+     * Drag screen from start index to end index
+     * 
+     * @param start
+     * @param end
+     */
+    public void changeScreenRank(int start, int end) {
+        int highIndex = (start > end) ? start : end;
+        int lowIndex = (start > end) ? end : start;
+        SQLiteDatabase db = mOpenHelper.getWritableDatabase();
+        String update1 = "update " + TABLE_WORKSPACE_SCREENS + " set "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK
+                + " = -1 where "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " = "
+                + start;
+        db.execSQL(update1);
+
+        String update2 = "";
+        if (start > end) {
+            update2 = "update " + TABLE_WORKSPACE_SCREENS + " set "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " = "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK
+                    + "+1 where "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " >= "
+                    + lowIndex + " and "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " <= "
+                    + highIndex;
+        } else {
+            update2 = "update " + TABLE_WORKSPACE_SCREENS + " set "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " = "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK
+                    + "-1 where "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " >= "
+                    + lowIndex + " and "
+                    + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " <= "
+                    + highIndex;
+        }
+        db.execSQL(update2);
+
+        String update3 = "update " + TABLE_WORKSPACE_SCREENS + " set "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " = "
+                + end + " where "
+                + LauncherSettings.WorkspaceScreens.SCREEN_RANK + " = -1";
+        db.execSQL(update3);
+    }
+    // }@
     static class SqlArguments {
         public final String table;
         public final String where;

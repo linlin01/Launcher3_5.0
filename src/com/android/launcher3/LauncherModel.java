@@ -1331,7 +1331,7 @@ public class LauncherModel extends BroadcastReceiver
         }
     }
 
-    void forceReload() {
+    public void forceReload() {// Modify by sunjie for Home Screen Edit Feature
         resetLoadedState(true, true);
 
         // Do this here because if the launcher activity is running it will be restarted.
@@ -2417,15 +2417,17 @@ public class LauncherModel extends BroadcastReceiver
                     Launcher.addDumpLog(TAG, "11683562 -   sBgWorkspaceScreens: " +
                             TextUtils.join(", ", sBgWorkspaceScreens), true);
 
-                    // Remove any empty screens
-                    ArrayList<Long> unusedScreens = new ArrayList<Long>(sBgWorkspaceScreens);
-                    for (ItemInfo item: sBgItemsIdMap.values()) {
-                        long screenId = item.screenId;
-                        if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP &&
-                                unusedScreens.contains(screenId)) {
-                            unusedScreens.remove(screenId);
+                    // Modify by sunjie for Home Screen Edit Feature @{
+                    if (!LauncherAppState.isSupportHomeScreenEdit()) {
+                        // Remove any empty screens
+                        ArrayList<Long> unusedScreens = new ArrayList<Long>(sBgWorkspaceScreens);
+                        for (ItemInfo item: sBgItemsIdMap.values()) {
+                            long screenId = item.screenId;
+                            if (item.container == LauncherSettings.Favorites.CONTAINER_DESKTOP &&
+                                    unusedScreens.contains(screenId)) {
+                                unusedScreens.remove(screenId);
+                            }
                         }
-                    }
 
                     // If there are any empty screens remove them, and update.
                     if (unusedScreens.size() != 0) {
@@ -2435,6 +2437,7 @@ public class LauncherModel extends BroadcastReceiver
 
                         sBgWorkspaceScreens.removeAll(unusedScreens);
                         updateWorkspaceScreenOrder(context, sBgWorkspaceScreens);
+                        }
                     }
                 }
 

@@ -1106,7 +1106,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     public void removeViewAt(int index) {
         // XXX: We should find a better way to hook into this before the view
         // gets removed form its parent...
-        removeViewAt(index);
+        //removeViewAt(index);//我把这个注释掉了，我不知道为什么要递归调用，不注释掉的话编辑功能就删不掉页了
         super.removeViewAt(index);
     }
     @Override

@@ -41,6 +41,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import com.android.launcher3.preview.RGKPreviewConfigure;
+
+import android.view.ViewConfiguration;
+
 
 class DeviceProfileQuery {
     DeviceProfile profile;
@@ -132,6 +136,14 @@ public class DeviceProfile {
 
     int allAppsShortEdgeCount = -1;
     int allAppsLongEdgeCount = -1;
+
+    // Add by sunjie for Home Screen Edit Feature @{
+    int previewHSpace = 0;
+    int previewVSpace = 0;
+    int previewWidth = 0;
+    int previewHeight = 0;
+    float previewScale = 0.0f;
+    // }@
 
     private ArrayList<DeviceProfileCallbacks> mCallbacks = new ArrayList<DeviceProfileCallbacks>();
 
@@ -766,6 +778,10 @@ public class DeviceProfile {
         Rect padding = getWorkspacePadding(orientation);
         workspace.setLayoutParams(lp);
         workspace.setPadding(padding.left, padding.top, padding.right, padding.bottom);
+        // Add by sunjie for Home Screen Edit Feature @{
+        int width = availableWidthPx - padding.left - padding.right;
+        int height = availableHeightPx - padding.top - padding.bottom;
+        // }@
         workspace.setPageSpacing(getWorkspacePageSpacing(orientation));
 
         // Layout the hotseat
@@ -882,5 +898,20 @@ public class DeviceProfile {
             lp.height = r.height();
             overviewMode.setLayoutParams(lp);
         }
+        // Add by sunjie for Home Screen Edit Feature @{
+        final Rect r = new Rect();
+        try {
+            res.getDrawable(R.drawable.rgk_thumbnail_bg).getPadding(r);
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        }
+
+        CellLayout cell = ((CellLayout) workspace.getChildAt(0));
+        previewHSpace = res.getDimensionPixelSize(R.dimen.preview_h_space);
+        previewWidth = (availableWidthPx - 2 * previewHSpace) / RGKPreviewConfigure.WORKSPACE_PREVIEW_COLUMNS - r.left - r.right;
+        previewScale = ((float)previewWidth) / width;
+        previewHeight = (int)(previewScale * height);
+        previewVSpace = availableHeightPx / RGKPreviewConfigure.WORKSPACE_PREVIEW_COLUMNS - previewHeight - r.top - r.bottom;
+        // }@
     }
 }

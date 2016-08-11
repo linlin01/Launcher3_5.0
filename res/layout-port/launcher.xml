@@ -61,6 +61,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal" />
 
+        <com.android.launcher3.preview.RGKWorkspacePreviewScrollLayout
+            android:id="@+id/wrokspce_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" >
+        </com.android.launcher3.preview.RGKWorkspacePreviewScrollLayout>
+
         <include
             android:id="@+id/search_drop_target_bar"
             layout="@layout/search_drop_target_bar" />

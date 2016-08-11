@@ -49,6 +49,7 @@ public class LauncherAppState implements DeviceProfile.DeviceProfileCallbacks {
     private float mScreenDensity;
     private int mLongPressTimeout = 300;
     private boolean mWallpaperChangedSinceLastCheck;
+    private static boolean mSupportHomeScreenEdit = false;// Add by sunjie for Home Screen Edit Feature
 
     private static WeakReference<LauncherProvider> sLauncherProvider;
     private static Context sContext;
@@ -119,6 +120,9 @@ public class LauncherAppState implements DeviceProfile.DeviceProfileCallbacks {
         ContentResolver resolver = sContext.getContentResolver();
         resolver.registerContentObserver(LauncherSettings.Favorites.CONTENT_URI, true,
                 mFavoritesObserver);
+
+        //mSupportHomeScreenEdit = ("1".equals(android.os.SystemProperties.get("ro.rgk_launcher_edit_support")));// Add by sunjie for Home Screen Edit Feature
+        mSupportHomeScreenEdit = true;
     }
 
     public void recreateWidgetPreviewDb() {
@@ -165,7 +169,7 @@ public class LauncherAppState implements DeviceProfile.DeviceProfileCallbacks {
         return mIconCache;
     }
 
-    LauncherModel getModel() {
+    public LauncherModel getModel() {// Modify by sunjie for Home Screen Edit Feature
         return mModel;
     }
 
@@ -181,7 +185,7 @@ public class LauncherAppState implements DeviceProfile.DeviceProfileCallbacks {
         sLauncherProvider = new WeakReference<LauncherProvider>(provider);
     }
 
-    static LauncherProvider getLauncherProvider() {
+    public static LauncherProvider getLauncherProvider() {
         return sLauncherProvider.get();
     }
 
@@ -267,4 +271,9 @@ public class LauncherAppState implements DeviceProfile.DeviceProfileCallbacks {
     public void updatePackageBadge(String packageName) {
         mModel.updatePackageBadge(packageName);
     }
+    // Add by sunjie for Home Screen Edit Feature @{
+    public static boolean isSupportHomeScreenEdit() {
+        return mSupportHomeScreenEdit;
+    }
+    // }@
 }
