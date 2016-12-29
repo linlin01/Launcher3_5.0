@@ -1584,6 +1584,7 @@ public class Launcher extends Activity
                         | LauncherModel.LOADER_FLAG_MIGRATE_SHORTCUTS);
             } else if (LauncherAppsCompat.ACTION_MANAGED_PROFILE_ADDED.equals(action)
                     || LauncherAppsCompat.ACTION_MANAGED_PROFILE_REMOVED.equals(action)) {
+                getModel().setACTION_MANAGED_PROFILE(false);
                 getModel().forceReload();
             }
         }
@@ -1600,6 +1601,7 @@ public class Launcher extends Activity
         // For handling managed profiles
         filter.addAction(LauncherAppsCompat.ACTION_MANAGED_PROFILE_ADDED);
         filter.addAction(LauncherAppsCompat.ACTION_MANAGED_PROFILE_REMOVED);
+
         if (ENABLE_DEBUG_INTENTS) {
             filter.addAction(DebugIntents.DELETE_DATABASE);
             filter.addAction(DebugIntents.MIGRATE_DATABASE);
@@ -4592,6 +4594,7 @@ Log.w("zhao11folder","v:"+v);
     @Override
     public void updatePackageBadge(String packageName) {
         if (mWorkspace != null) {
+            //TODO CTS
             mWorkspace.updatePackageBadge(packageName, UserHandleCompat.myUserHandle());
         }
     }

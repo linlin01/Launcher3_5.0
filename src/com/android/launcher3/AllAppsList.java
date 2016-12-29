@@ -125,6 +125,21 @@ class AllAppsList {
     }
 
     /**
+     * Updates the apps for the given packageName and user based on {@param op}.
+     */
+    public void updatePackageFlags(UserHandleCompat user , boolean ACTION_MANAGED_PROFILE) {
+        final List<AppInfo> data = this.data;
+        for (int i = data.size() - 1; i >= 0; i--) {
+            AppInfo info = data.get(i);
+            final ComponentName component = info.intent.getComponent();
+            if (info.user.equals(user) ){//&& pkgFilter.matches(component.getPackageName())) {
+                info.isDisabled = ACTION_MANAGED_PROFILE;//op.apply(info.isDisabled);
+                modified.add(info);
+            }
+        }
+    }
+
+    /**
      * Add and remove icons for this package which has been updated.
      */
     public void updatePackage(Context context, String packageName, UserHandleCompat user) {

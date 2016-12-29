@@ -17,6 +17,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:focusable="false"
+    android:background="#990044ff"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 

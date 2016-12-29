@@ -178,6 +178,16 @@ public class LauncherModel extends BroadcastReceiver
 
     protected int mPreviousConfigMcc;
 
+    public boolean isACTION_MANAGED_PROFILE() {
+        return ACTION_MANAGED_PROFILE;
+    }
+
+    public void setACTION_MANAGED_PROFILE(boolean ACTION_MANAGED_PROFILE) {
+        this.ACTION_MANAGED_PROFILE = ACTION_MANAGED_PROFILE;
+    }
+
+    private boolean ACTION_MANAGED_PROFILE = false;
+
     private final LauncherAppsCompat mLauncherApps;
     private final UserManagerCompat mUserManager;
 
@@ -197,10 +207,10 @@ public class LauncherModel extends BroadcastReceiver
                                   ArrayList<ItemInfo> addNotAnimated,
                                   ArrayList<ItemInfo> addAnimated,
                                   ArrayList<AppInfo> addedApps);
-        public void bindAppsUpdated(ArrayList<AppInfo> apps);
+        public void bindAppsUpdated(ArrayList<AppInfo> apps);//更新allapp
         public void bindAppsRestored(ArrayList<AppInfo> apps);
         public void updatePackageState(ArrayList<PackageInstallInfo> installInfo);
-        public void updatePackageBadge(String packageName);
+        public void updatePackageBadge(String packageName);//genxin workspace
         public void bindComponentsRemoved(ArrayList<String> packageNames,
                         ArrayList<AppInfo> appInfos, UserHandleCompat user);
         public void bindPackagesUpdated(ArrayList<Object> widgetsAndShortcuts);
@@ -1305,6 +1315,7 @@ public class LauncherModel extends BroadcastReceiver
         if (DEBUG_RECEIVER) Log.d(TAG, "onReceive intent=" + intent);
 
         final String action = intent.getAction();
+        Log.i("zhaocts","onReceive:action:"+action);
         if (Intent.ACTION_LOCALE_CHANGED.equals(action)) {
             // If we have changed locale we need to clear out the labels in all apps/workspace.
             forceReload();
@@ -1327,6 +1338,20 @@ public class LauncherModel extends BroadcastReceiver
                 if (callbacks != null) {
                     callbacks.bindSearchablesChanged();
                 }
+            }
+        } else if (LauncherAppsCompat.ACTION_MANAGED_PROFILE_AVAILABLE.equals(action) ||
+                 LauncherAppsCompat.ACTION_MANAGED_PROFILE_UNAVAILABLE.equals(action)) {
+            if(LauncherAppsCompat.ACTION_MANAGED_PROFILE_UNAVAILABLE.equals(action)){
+                setACTION_MANAGED_PROFILE(true);
+            }else {
+                setACTION_MANAGED_PROFILE(false);
+            }
+            UserHandleCompat user = UserHandleCompat.fromIntent(intent);
+            Log.i("zhaocts","onReceive:user:"+user);
+            if (user != null) {
+                enqueuePackageUpdated(new PackageUpdatedTask(
+                        PackageUpdatedTask.OP_USER_AVAILABILITY_CHANGE,
+                        new String[0], user));
             }
         }
     }
@@ -3035,6 +3060,7 @@ public class LauncherModel extends BroadcastReceiver
         public static final int OP_UPDATE = 2;
         public static final int OP_REMOVE = 3; // uninstlled
         public static final int OP_UNAVAILABLE = 4; // external media unmounted
+        public static final int OP_USER_AVAILABILITY_CHANGE = 7; // user available/unavailable
 
 
         public PackageUpdatedTask(int op, String[] packages, UserHandleCompat user) {
@@ -3073,6 +3099,12 @@ public class LauncherModel extends BroadcastReceiver
                                 mApp.getWidgetPreviewCacheDb(), packages[i]);
                     }
                     break;
+                case OP_USER_AVAILABILITY_CHANGE:
+
+//                    mBgAllAppsList.updatePackageFlags(pkgFilter, mUser, flagOp);
+                    mBgAllAppsList.updatePackageFlags( mUser ,isACTION_MANAGED_PROFILE());
+                    break;
+
             }
 
             ArrayList<AppInfo> added = null;

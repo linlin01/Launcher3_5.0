@@ -18,6 +18,7 @@
     xmlns:launcher="http://schemas.android.com/apk/res-auto/com.android.launcher3">
     <com.android.launcher3.CellLayout
         android:id="@+id/layout"
+        android:background="#88f5ae09"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center" />

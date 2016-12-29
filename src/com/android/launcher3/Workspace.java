@@ -351,10 +351,14 @@ public class Workspace extends SmoothPagedView
         setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_YES);
     }
 
+    int i=0;
     @Override
     public void setInsets(Rect insets) {
         mInsets.set(insets);
+        Log.i("zhao55", "setInsets()");
 
+//        if(i==2) throw new RuntimeException("异常1");
+//        i++;
         CellLayout customScreen = getScreenWithId(CUSTOM_CONTENT_SCREEN_ID);
         if (customScreen != null) {
             View customContent = customScreen.getShortcutsAndWidgets().getChildAt(0);
@@ -1083,6 +1087,7 @@ public class Workspace extends SmoothPagedView
     }
 
     protected void onWindowVisibilityChanged (int visibility) {
+        Log.i("zhaovisiblity","onWindowVisibilityChanged："+visibility);
         mLauncher.onWindowVisibilityChanged(visibility);
     }
 
@@ -2717,6 +2722,7 @@ public class Workspace extends SmoothPagedView
         }
 
         b.recycle();
+//        throw new RuntimeException("报错");
     }
 
     public void beginExternalDragShared(View child, DragSource source) {

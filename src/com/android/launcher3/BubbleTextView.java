@@ -144,8 +144,12 @@ public class BubbleTextView extends TextView {
         LauncherAppState app = LauncherAppState.getInstance();
         DeviceProfile grid = app.getDynamicGrid().getDeviceProfile();
 
-        Drawable topDrawable = Utilities.createIconDrawable(info.iconBitmap);
+//        Drawable topDrawable = Utilities.createIconDrawable(info.iconBitmap);
+        //TODO CTS zhao start
+        FastBitmapDrawable topDrawable = Utilities.createIconDrawable(info.iconBitmap);
+        topDrawable.setGhostModeEnabled(info.isDisabled);
         topDrawable.setBounds(0, 0, grid.allAppsIconSizePx, grid.allAppsIconSizePx);
+        //TODO CTS zhao end
         setCompoundDrawables(null, topDrawable, null, null);
         setCompoundDrawablePadding(grid.iconDrawablePaddingPx);
         setText(info.title);

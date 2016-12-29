@@ -37,6 +37,7 @@
         <!-- The workspace contains 5 screens of cells -->
         <com.android.launcher3.Workspace
             android:id="@+id/workspace"
+            android:background="#88119922"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             launcher:defaultScreen="@integer/config_workspaceDefaultScreen"

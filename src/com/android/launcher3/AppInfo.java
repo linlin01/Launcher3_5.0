@@ -49,6 +49,10 @@ public class AppInfo extends ItemInfo {
      */
     Bitmap iconBitmap;
 
+    public Bitmap getIconBitmap() {
+        return iconBitmap;
+    }
+
     /**
      * The time at which the app was first installed.
      */

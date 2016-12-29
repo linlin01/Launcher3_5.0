@@ -2420,6 +2420,11 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
     protected void invalidatePageData() {
         invalidatePageData(-1, false);
     }
+
+    /**
+     * 这个重载的方法只有在reset（）方法里会被调用，而且参数只会传0
+     * @param currentPage
+     */
     protected void invalidatePageData(int currentPage) {
         invalidatePageData(currentPage, false);
     }
@@ -2445,7 +2450,7 @@ public abstract class PagedView extends ViewGroup implements ViewGroup.OnHierarc
                 setCurrentPage(Math.min(getPageCount() - 1, currentPage));
             }
 
-            // Mark each of the pages as dirty
+            // Mark each of the pages as dirty：dirty 变脏，弄脏，污染
             final int count = getChildCount();
             mDirtyPageContent.clear();
             for (int i = 0; i < count; ++i) {

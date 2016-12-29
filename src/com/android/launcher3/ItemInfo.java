@@ -35,6 +35,11 @@ import java.util.Arrays;
 public class ItemInfo {
 
     /**
+     * Could be disabled, if the the app is installed but unavailable (eg. in safe mode or when
+     * sd-card is not available).
+     */
+    boolean isDisabled = false;
+    /**
      * Intent extra to store the profile. Format: UserHandle
      */
     static final String EXTRA_PROFILE = "profile";

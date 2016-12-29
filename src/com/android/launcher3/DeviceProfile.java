@@ -27,6 +27,7 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.Surface;
@@ -632,6 +633,8 @@ public class DeviceProfile {
                         hotseatBarHeightPx + pageIndicatorHeightPx);
             }
         }
+        Log.i("zhao11","padding.left:"+padding.left+",padding.top:"+padding.top
+                +",padding.right:"+padding.right+",padding.bottom:"+padding.bottom);
         return padding;
     }
 

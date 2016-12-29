@@ -1270,6 +1270,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
 
     @Override
     public void syncPages() {
+
         disablePagedViewAnimations();
 
         removeAllViews();
@@ -1296,6 +1297,7 @@ public class AppsCustomizePagedView extends PagedViewWithDraggableItems implemen
         }
 
         enablePagedViewAnimations();
+//        throw new RuntimeException("syncPages()");
     }
 
     @Override

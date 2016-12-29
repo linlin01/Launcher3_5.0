@@ -92,4 +92,14 @@ public class UserHandleCompat {
             intent.putExtra(name, mUser);
         }
     }
+
+    public static UserHandleCompat fromIntent(Intent intent) {
+        if (Utilities.isLmpOrAbove()) {
+            UserHandle user = intent.getParcelableExtra(Intent.EXTRA_USER);
+            if (user != null) {
+                return UserHandleCompat.fromUser(user);
+            }
+        }
+        return null;
+    }
 }
